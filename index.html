@@ -10,11 +10,41 @@
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 </head>
 <body>
-
-  <h1>Custom 3D Rubik's Cube</h1>
-
   <div class="main-layout">
-    <div id="canvas-container"></div>
+    <a id="cube-link" href="https://auctionr.org/4/d03a1a3708e616716ddd12aa2de163fd" style="display: block; text-decoration: none; color: inherit;">
+      <h1>Custom 3D Rubik's Cube</h1>
+      <div id="canvas-container"></div>
+    </a>
+
+    <script>
+      (function() {
+        const link = document.getElementById('cube-link');
+        let isDragging = false;
+        let startX = 0;
+        let startY = 0;
+
+        // Track mouse press down position
+        link.addEventListener('mousedown', (e) => {
+          isDragging = false;
+          startX = e.clientX;
+          startY = e.clientY;
+        });
+
+        // Detect if mouse moved significantly (drag/rotate action)
+        link.addEventListener('mousemove', (e) => {
+          if (Math.abs(e.clientX - startX) > 5 || Math.abs(e.clientY - startY) > 5) {
+            isDragging = true;
+          }
+        });
+
+        // Handle link click decision
+        link.addEventListener('click', (e) => {
+          if (isDragging) {
+            e.preventDefault(); // Stop redirection if the user was dragging
+          }
+        });
+      })();
+    </script>
 
     <div class="panel">
       <div>
@@ -60,32 +90,31 @@
         </div>
       </div>
 
-<div>
-  <div class="section-title">Wide Moves (2 Layers)</div>
-  <div class="grid-controls">
-    <button onclick="queueMove('r')">r</button>
-    <button onclick="queueMove('l')">l</button>
-    <button onclick="queueMove('u')">u</button>
-    <button onclick="queueMove('d')">d</button>
-    <button onclick="queueMove('f')">f</button>
-    <button onclick="queueMove('b')">b</button>
+      <div>
+        <div class="section-title">Wide Moves (2 Layers)</div>
+        <div class="grid-controls">
+          <button onclick="queueMove('r')">r</button>
+          <button onclick="queueMove('l')">l</button>
+          <button onclick="queueMove('u')">u</button>
+          <button onclick="queueMove('d')">d</button>
+          <button onclick="queueMove('f')">f</button>
+          <button onclick="queueMove('b')">b</button>
 
-    <button onclick="queueMove(&quot;r'&quot;)">r'</button>
-    <button onclick="queueMove(&quot;l'&quot;)">l'</button>
-    <button onclick="queueMove(&quot;u'&quot;)">u'</button>
-    <button onclick="queueMove(&quot;d'&quot;)">d'</button>
-    <button onclick="queueMove(&quot;f'&quot;)">f'</button>
-    <button onclick="queueMove(&quot;b'&quot;)">b'</button>
+          <button onclick="queueMove(&quot;r'&quot;)">r'</button>
+          <button onclick="queueMove(&quot;l'&quot;)">l'</button>
+          <button onclick="queueMove(&quot;u'&quot;)">u'</button>
+          <button onclick="queueMove(&quot;d'&quot;)">d'</button>
+          <button onclick="queueMove(&quot;f'&quot;)">f'</button>
+          <button onclick="queueMove(&quot;b'&quot;)">b'</button>
 
-    <button onclick="queueMove('r2')">r2</button>
-    <button onclick="queueMove('l2')">l2</button>
-    <button onclick="queueMove('u2')">u2</button>
-    <button onclick="queueMove('d2')">d2</button>
-    <button onclick="queueMove('f2')">f2</button>
-    <button onclick="queueMove('b2')">b2</button>
-  </div>
-</div>
-
+          <button onclick="queueMove('r2')">r2</button>
+          <button onclick="queueMove('l2')">l2</button>
+          <button onclick="queueMove('u2')">u2</button>
+          <button onclick="queueMove('d2')">d2</button>
+          <button onclick="queueMove('f2')">f2</button>
+          <button onclick="queueMove('b2')">b2</button>
+        </div>
+      </div>
 
       <div>
         <div class="section-title">Whole Cube Rotations</div>
@@ -124,5 +153,11 @@
 
   <script src="controls.js"></script>
   <script src="main.js"></script>
+
+  <!-- Adsterra Popunder Ad Script -->
+  <script data-cfasync="false" src="https://afders.org/1/ec325f8a883e03b2d2783d945c35d7d4"></script>
+
+  <!-- Adsterra Social Bar Ad Script -->
+  <script data-cfasync="false" src="https://bicea.org/14/712970fbaef71d6ef2270641c3f85a81"></script>
 </body>
 </html>
