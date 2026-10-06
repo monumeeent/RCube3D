@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Custom Three.js 3D Rubik's Cube</title>
+  <link rel="stylesheet" href="style.css">
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+</head>
+<body>
+
+  <h1>Custom 3D Rubik's Cube</h1>
+
+  <div class="main-layout">
+    <div id="canvas-container"></div>
+
+    <div class="panel">
+      <div>
+        <div class="section-title">Outer Face Moves</div>
+        <div class="grid-controls">
+          <button onclick="queueMove('R')">R</button>
+          <button onclick="queueMove('L')">L</button>
+          <button onclick="queueMove('U')">U</button>
+          <button onclick="queueMove('D')">D</button>
+          <button onclick="queueMove('F')">F</button>
+          <button onclick="queueMove('B')">B</button>
+
+          <button onclick="queueMove(&quot;R'&quot;)">R'</button>
+          <button onclick="queueMove(&quot;L'&quot;)">L'</button>
+          <button onclick="queueMove(&quot;U'&quot;)">U'</button>
+          <button onclick="queueMove(&quot;D'&quot;)">D'</button>
+          <button onclick="queueMove(&quot;F'&quot;)">F'</button>
+          <button onclick="queueMove(&quot;B'&quot;)">B'</button>
+
+          <button onclick="queueMove('R2')">R2</button>
+          <button onclick="queueMove('L2')">L2</button>
+          <button onclick="queueMove('U2')">U2</button>
+          <button onclick="queueMove('D2')">D2</button>
+          <button onclick="queueMove('F2')">F2</button>
+          <button onclick="queueMove('B2')">B2</button>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-title">Slice Moves</div>
+        <div class="grid-controls">
+          <button onclick="queueMove('M')">M</button>
+          <button onclick="queueMove('E')">E</button>
+          <button onclick="queueMove('S')">S</button>
+
+          <button onclick="queueMove(&quot;M'&quot;)">M'</button>
+          <button onclick="queueMove(&quot;E'&quot;)">E'</button>
+          <button onclick="queueMove(&quot;S'&quot;)">S'</button>
+
+          <button onclick="queueMove('M2')">M2</button>
+          <button onclick="queueMove('E2')">E2</button>
+          <button onclick="queueMove('S2')">S2</button>
+        </div>
+      </div>
+
+<div>
+  <div class="section-title">Wide Moves (2 Layers)</div>
+  <div class="grid-controls">
+    <button onclick="queueMove('r')">r</button>
+    <button onclick="queueMove('l')">l</button>
+    <button onclick="queueMove('u')">u</button>
+    <button onclick="queueMove('d')">d</button>
+    <button onclick="queueMove('f')">f</button>
+    <button onclick="queueMove('b')">b</button>
+
+    <button onclick="queueMove(&quot;r'&quot;)">r'</button>
+    <button onclick="queueMove(&quot;l'&quot;)">l'</button>
+    <button onclick="queueMove(&quot;u'&quot;)">u'</button>
+    <button onclick="queueMove(&quot;d'&quot;)">d'</button>
+    <button onclick="queueMove(&quot;f'&quot;)">f'</button>
+    <button onclick="queueMove(&quot;b'&quot;)">b'</button>
+
+    <button onclick="queueMove('r2')">r2</button>
+    <button onclick="queueMove('l2')">l2</button>
+    <button onclick="queueMove('u2')">u2</button>
+    <button onclick="queueMove('d2')">d2</button>
+    <button onclick="queueMove('f2')">f2</button>
+    <button onclick="queueMove('b2')">b2</button>
+  </div>
+</div>
+
+
+      <div>
+        <div class="section-title">Whole Cube Rotations</div>
+        <div class="grid-controls">
+          <button onclick="queueMove('x')">x</button>
+          <button onclick="queueMove('y')">y</button>
+          <button onclick="queueMove('z')">z</button>
+
+          <button onclick="queueMove(&quot;x'&quot;)">x'</button>
+          <button onclick="queueMove(&quot;y'&quot;)">y'</button>
+          <button onclick="queueMove(&quot;z'&quot;)">z'</button>
+
+          <button onclick="queueMove('x2')">x2</button>
+          <button onclick="queueMove('y2')">y2</button>
+          <button onclick="queueMove('z2')">z2</button>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-title">Custom Algorithm</div>
+        <div class="input-group">
+          <input type="text" id="alg-input" value="R U R' U'" placeholder="e.g. R U R' U' M2 x2">
+          <button class="btn-apply" onclick="applyAlgorithm()">Apply Alg</button>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-title">Actions</div>
+        <div class="grid-controls">
+          <button class="btn-action" onclick="scrambleCube()">🔀 Scramble</button>
+          <button class="btn-reset" onclick="resetCube()">🔄 Reset Solved</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="controls.js"></script>
+  <script src="main.js"></script>
+</body>
+</html>
