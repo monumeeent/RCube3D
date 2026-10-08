@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Custom Three.js 3D Rubik's Cube</title>
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="style.css">
@@ -13,189 +14,196 @@
 </head>
 <body>
   <header class="site-nav">
-    <a href="#" class="brand-title">Custom <span class="accent">3D Rubik's</span> Cube</a>
+    <a href="#" class="brand-title">
+      <svg class="brand-mark" viewBox="0 0 34 34" aria-hidden="true">
+        <rect x="1" y="1" width="15" height="15" rx="2" class="mark-u"></rect>
+        <rect x="18" y="1" width="15" height="15" rx="2" class="mark-r"></rect>
+        <rect x="1" y="18" width="15" height="15" rx="2" class="mark-f"></rect>
+        <rect x="18" y="18" width="15" height="15" rx="2" class="mark-l"></rect>
+      </svg>
+      <span class="brand-wordmark">Cube Console</span>
+    </a>
   </header>
 
   <main class="main-layout">
-    <div id="canvas-container"></div>
+  <div id="canvas-container"></div>
 
-    <!-- Master Control Container -->
-    <div class="control-bar-container">
-      
-      <!-- Popover Drawer for Move Buttons -->
-      <div class="move-drawer" id="moveDrawer">
-        <!-- Tabs Nav -->
-        <div class="drawer-tabs">
-          <button class="tab-btn active" data-tab="outer">Outer</button>
-          <button class="tab-btn" data-tab="slice">Slice</button>
-          <button class="tab-btn" data-tab="wide">Wide</button>
-          <button class="tab-btn" data-tab="rotation">Rotation</button>
+  <!-- Bottom-Left Control Group (Control Bar Stacked Above Algorithm Dock) -->
+  <div class="bottom-left-dock">
+    <!-- Move Drawer Popover -->
+    <div class="move-drawer" id="moveDrawer">
+      <div class="drawer-tabs">
+        <button type="button" class="tab-btn active" data-tab="outer">Outer</button>
+        <button type="button" class="tab-btn" data-tab="slice">Slice</button>
+        <button type="button" class="tab-btn" data-tab="wide">Wide</button>
+        <button type="button" class="tab-btn" data-tab="rotation">Rotation</button>
+      </div>
+
+      <div class="drawer-content">
+        <div class="tab-panel active" id="tab-outer">
+          <div class="grid-controls grid-6col">
+            <button type="button" data-face="R" onclick="queueMove('R')">R</button>
+            <button type="button" data-face="L" onclick="queueMove('L')">L</button>
+            <button type="button" data-face="U" onclick="queueMove('U')">U</button>
+            <button type="button" data-face="D" onclick="queueMove('D')">D</button>
+            <button type="button" data-face="F" onclick="queueMove('F')">F</button>
+            <button type="button" data-face="B" onclick="queueMove('B')">B</button>
+            <button type="button" data-face="R" onclick="queueMove(&quot;R'&quot;)">R'</button>
+            <button type="button" data-face="L" onclick="queueMove(&quot;L'&quot;)">L'</button>
+            <button type="button" data-face="U" onclick="queueMove(&quot;U'&quot;)">U'</button>
+            <button type="button" data-face="D" onclick="queueMove(&quot;D'&quot;)">D'</button>
+            <button type="button" data-face="F" onclick="queueMove(&quot;F'&quot;)">F'</button>
+            <button type="button" data-face="B" onclick="queueMove(&quot;B'&quot;)">B'</button>
+            <button type="button" data-face="R" onclick="queueMove('R2')">R2</button>
+            <button type="button" data-face="L" onclick="queueMove('L2')">L2</button>
+            <button type="button" data-face="U" onclick="queueMove('U2')">U2</button>
+            <button type="button" data-face="D" onclick="queueMove('D2')">D2</button>
+            <button type="button" data-face="F" onclick="queueMove('F2')">F2</button>
+            <button type="button" data-face="B" onclick="queueMove('B2')">B2</button>
+          </div>
         </div>
 
-        <!-- Tab Panels -->
-        <div class="drawer-content">
-          <!-- Outer Face Moves -->
-          <div class="tab-panel active" id="tab-outer">
-            <div class="grid-controls grid-6col">
-              <button onclick="queueMove('R')">R</button>
-              <button onclick="queueMove('L')">L</button>
-              <button onclick="queueMove('U')">U</button>
-              <button onclick="queueMove('D')">D</button>
-              <button onclick="queueMove('F')">F</button>
-              <button onclick="queueMove('B')">B</button>
-
-              <button onclick="queueMove(&quot;R'&quot;)">R'</button>
-              <button onclick="queueMove(&quot;L'&quot;)">L'</button>
-              <button onclick="queueMove(&quot;U'&quot;)">U'</button>
-              <button onclick="queueMove(&quot;D'&quot;)">D'</button>
-              <button onclick="queueMove(&quot;F'&quot;)">F'</button>
-              <button onclick="queueMove(&quot;B'&quot;)">B'</button>
-
-              <button onclick="queueMove('R2')">R2</button>
-              <button onclick="queueMove('L2')">L2</button>
-              <button onclick="queueMove('U2')">U2</button>
-              <button onclick="queueMove('D2')">D2</button>
-              <button onclick="queueMove('F2')">F2</button>
-              <button onclick="queueMove('B2')">B2</button>
-            </div>
+        <div class="tab-panel" id="tab-slice">
+          <div class="grid-controls grid-3col">
+            <button type="button" data-axis="rl" onclick="queueMove('M')">M</button>
+            <button type="button" data-axis="ud" onclick="queueMove('E')">E</button>
+            <button type="button" data-axis="fb" onclick="queueMove('S')">S</button>
+            <button type="button" data-axis="rl" onclick="queueMove(&quot;M'&quot;)">M'</button>
+            <button type="button" data-axis="ud" onclick="queueMove(&quot;E'&quot;)">E'</button>
+            <button type="button" data-axis="fb" onclick="queueMove(&quot;S'&quot;)">S'</button>
+            <button type="button" data-axis="rl" onclick="queueMove('M2')">M2</button>
+            <button type="button" data-axis="ud" onclick="queueMove('E2')">E2</button>
+            <button type="button" data-axis="fb" onclick="queueMove('S2')">S2</button>
           </div>
+        </div>
 
-          <!-- Slice Moves -->
-          <div class="tab-panel" id="tab-slice">
-            <div class="grid-controls grid-3col">
-              <button onclick="queueMove('M')">M</button>
-              <button onclick="queueMove('E')">E</button>
-              <button onclick="queueMove('S')">S</button>
-
-              <button onclick="queueMove(&quot;M'&quot;)">M'</button>
-              <button onclick="queueMove(&quot;E'&quot;)">E'</button>
-              <button onclick="queueMove(&quot;S'&quot;)">S'</button>
-
-              <button onclick="queueMove('M2')">M2</button>
-              <button onclick="queueMove('E2')">E2</button>
-              <button onclick="queueMove('S2')">S2</button>
-            </div>
+        <div class="tab-panel" id="tab-wide">
+          <div class="grid-controls grid-6col">
+            <button type="button" data-face="R" data-wide="true" onclick="queueMove('r')">r</button>
+            <button type="button" data-face="L" data-wide="true" onclick="queueMove('l')">l</button>
+            <button type="button" data-face="U" data-wide="true" onclick="queueMove('u')">u</button>
+            <button type="button" data-face="D" data-wide="true" onclick="queueMove('d')">d</button>
+            <button type="button" data-face="F" data-wide="true" onclick="queueMove('f')">f</button>
+            <button type="button" data-face="B" data-wide="true" onclick="queueMove('b')">b</button>
+            <button type="button" data-face="R" data-wide="true" onclick="queueMove(&quot;r'&quot;)">r'</button>
+            <button type="button" data-face="L" data-wide="true" onclick="queueMove(&quot;l'&quot;)">l'</button>
+            <button type="button" data-face="U" data-wide="true" onclick="queueMove(&quot;u'&quot;)">u'</button>
+            <button type="button" data-face="D" data-wide="true" onclick="queueMove(&quot;d'&quot;)">d'</button>
+            <button type="button" data-face="F" data-wide="true" onclick="queueMove(&quot;f'&quot;)">f'</button>
+            <button type="button" data-face="B" data-wide="true" onclick="queueMove(&quot;b'&quot;)">b'</button>
+            <button type="button" data-face="R" data-wide="true" onclick="queueMove('r2')">r2</button>
+            <button type="button" data-face="L" data-wide="true" onclick="queueMove('l2')">l2</button>
+            <button type="button" data-face="U" data-wide="true" onclick="queueMove('u2')">u2</button>
+            <button type="button" data-face="D" data-wide="true" onclick="queueMove('d2')">d2</button>
+            <button type="button" data-face="F" data-wide="true" onclick="queueMove('f2')">f2</button>
+            <button type="button" data-face="B" data-wide="true" onclick="queueMove('b2')">b2</button>
           </div>
+        </div>
 
-          <!-- Wide Moves -->
-          <div class="tab-panel" id="tab-wide">
-            <div class="grid-controls grid-6col">
-              <button onclick="queueMove('r')">r</button>
-              <button onclick="queueMove('l')">l</button>
-              <button onclick="queueMove('u')">u</button>
-              <button onclick="queueMove('d')">d</button>
-              <button onclick="queueMove('f')">f</button>
-              <button onclick="queueMove('b')">b</button>
-
-              <button onclick="queueMove(&quot;r'&quot;)">r'</button>
-              <button onclick="queueMove(&quot;l'&quot;)">l'</button>
-              <button onclick="queueMove(&quot;u'&quot;)">u'</button>
-              <button onclick="queueMove(&quot;d'&quot;)">d'</button>
-              <button onclick="queueMove(&quot;f'&quot;)">f'</button>
-              <button onclick="queueMove(&quot;b'&quot;)">b'</button>
-
-              <button onclick="queueMove('r2')">r2</button>
-              <button onclick="queueMove('l2')">l2</button>
-              <button onclick="queueMove('u2')">u2</button>
-              <button onclick="queueMove('d2')">d2</button>
-              <button onclick="queueMove('f2')">f2</button>
-              <button onclick="queueMove('b2')">b2</button>
-            </div>
-          </div>
-
-          <!-- Whole Cube Rotations -->
-          <div class="tab-panel" id="tab-rotation">
-            <div class="grid-controls grid-3col">
-              <button onclick="queueMove('x')">x</button>
-              <button onclick="queueMove('y')">y</button>
-              <button onclick="queueMove('z')">z</button>
-
-              <button onclick="queueMove(&quot;x'&quot;)">x'</button>
-              <button onclick="queueMove(&quot;y'&quot;)">y'</button>
-              <button onclick="queueMove(&quot;z'&quot;)">z'</button>
-
-              <button onclick="queueMove('x2')">x2</button>
-              <button onclick="queueMove('y2')">y2</button>
-              <button onclick="queueMove('z2')">z2</button>
-            </div>
+        <div class="tab-panel" id="tab-rotation">
+          <div class="grid-controls grid-3col">
+            <button type="button" data-face="R" data-rotation="true" onclick="queueMove('x')">x</button>
+            <button type="button" data-face="U" data-rotation="true" onclick="queueMove('y')">y</button>
+            <button type="button" data-face="F" data-rotation="true" onclick="queueMove('z')">z</button>
+            <button type="button" data-face="R" data-rotation="true" onclick="queueMove(&quot;x'&quot;)">x'</button>
+            <button type="button" data-face="U" data-rotation="true" onclick="queueMove(&quot;y'&quot;)">y'</button>
+            <button type="button" data-face="F" data-rotation="true" onclick="queueMove(&quot;z'&quot;)">z'</button>
+            <button type="button" data-face="R" data-rotation="true" onclick="queueMove('x2')">x2</button>
+            <button type="button" data-face="U" data-rotation="true" onclick="queueMove('y2')">y2</button>
+            <button type="button" data-face="F" data-rotation="true" onclick="queueMove('z2')">z2</button>
           </div>
         </div>
       </div>
-
-      <!-- Main One-Row Control Bar -->
-<!-- Main One-Row Control Bar -->
-<div class="single-control-bar">
-  
-  <!-- Section 1: Type & Apply -->
-  <div class="bar-section input-section">
-    <div class="input-wrapper">
-      <!-- Input Icon -->
-      <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="4 17 10 11 4 5"></polyline>
-        <line x1="12" y1="19" x2="20" y2="19"></line>
-      </svg>
-      <input type="text" id="alg-input" value="R U R' U'" placeholder="Type alg...">
     </div>
 
-    <!-- Apply Button with Play Icon -->
-    <button class="btn-apply" onclick="applyAlgorithm()">
-      <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <polygon points="5 3 19 12 5 21 5 3"></polygon>
-      </svg>
-      <span>Apply</span>
-    </button>
-  </div>
+    <!-- Scramble / Reset Control Bar -->
+    <div class="single-control-bar">
+      <div class="bar-section actions-section">
+        <button type="button" class="btn-action-sm" onclick="scrambleCube()">
+          <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="16 3 21 3 21 8"></polyline>
+            <line x1="4" y1="20" x2="21" y2="3"></line>
+            <polyline points="21 16 21 21 16 21"></polyline>
+            <line x1="15" y1="15" x2="21" y2="21"></line>
+            <line x1="4" y1="4" x2="9" y2="9"></line>
+          </svg>
+          <span>Scramble</span>
+        </button>
 
-  <div class="divider"></div>
+        <span class="slash" aria-hidden="true">|</span>
 
-  <!-- Section 2: Actions -->
-  <div class="bar-section actions-section">
-    <!-- Scramble Button with Shuffle Icon -->
-    <button class="btn-action-sm" onclick="scrambleCube()">
-      <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="16 3 21 3 21 8"></polyline>
-        <line x1="4" y1="20" x2="21" y2="3"></line>
-        <polyline points="21 16 21 21 16 21"></polyline>
-        <line x1="15" y1="15" x2="21" y2="21"></line>
-        <line x1="4" y1="4" x2="9" y2="9"></line>
-      </svg>
-      <span>Scramble</span>
-    </button>
+        <button type="button" class="btn-reset-sm" onclick="resetCube()">
+          <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M23 4v6h-6"></path>
+            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+          </svg>
+          <span>Reset</span>
+        </button>
+      </div>
 
-    <span class="slash">|</span>
+      <div class="divider" aria-hidden="true"></div>
 
-    <!-- Reset Button with Refresh Icon -->
-    <button class="btn-reset-sm" onclick="resetCube()">
-      <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M23 4v6h-6"></path>
-        <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
-      </svg>
-      <span>Reset</span>
-    </button>
-  </div>
+      <button type="button" class="move-bar-toggle" id="toggleDrawerBtn" title="Toggle Move Pad" aria-label="Toggle move pad" aria-expanded="false" aria-controls="moveDrawer">
+        <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="18 15 12 9 6 15"></polyline>
+        </svg>
+      </button>
+    </div>
 
-  <!-- Section 3: Toggle Button -->
-  <button class="move-bar-toggle" id="toggleDrawerBtn" title="Toggle Move Pad">
-    <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-      <polyline points="18 15 12 9 6 15"></polyline>
-    </svg>
-  </button>
-
-  <div class="divider"></div>
-
-  <!-- Section 4: Recent Moves History -->
-  <div class="bar-section history-section">
-    <span class="history-label">Moves:</span>
-    <div class="history-tags" id="recentMovesList">
-      <span class="history-empty">None</span>
+    <!-- Algorithm Input Dock -->
+    <div class="algorithm-dock">
+      <div class="bar-section input-section">
+        <div class="input-wrapper">
+          <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="4 17 10 11 4 5"></polyline>
+            <line x1="12" y1="19" x2="20" y2="19"></line>
+          </svg>
+          <input type="text" id="alg-input" placeholder="Type alg..." aria-label="Cube algorithm">
+        </div>
+        <button type="button" class="btn-apply" onclick="applyAlgorithm()">
+          <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+          </svg>
+          <span>Apply</span>
+        </button>
+      </div>
     </div>
   </div>
 
+  <!-- Bottom-Right Solving Moves Bar -->
+  <div class="solving-moves-bar">
+    <div class="solving-moves-label">
+      <span>Solving Move :</span>
+      <div id="solvingMovesDisplay" class="moves-text">--</div>
+    </div>
+    <button type="button" class="btn-copy-moves" id="copyMovesBtn">
+      Copy
+    </button>
+  </div>
+  <!-- Add inside <main class="main-layout"> in index_2.html -->
+<div class="move-history-panel">
+  <div class="move-history-heading">
+    <span class="history-label">Move history</span>
+  </div>
+  <div class="move-panel-section">
+    <span class="move-panel-label">Solving queue</span>
+    <div id="solvingQueueList" class="history-tags"></div>
+  </div>
+  <div class="move-panel-section">
+    <span class="move-panel-label">Recent moves</span>
+    <div id="recentMovesList" class="history-tags"></div>
+  </div>
+  <div class="move-panel-section">
+    <span class="move-panel-label">Scramble queue</span>
+    <div id="scrambleQueueList" class="history-tags"></div>
+  </div>
+  <div class="move-panel-section">
+    <span class="move-panel-label">Scramble history</span>
+    <div id="scrambleMovesList" class="history-tags"></div>
+  </div>
 </div>
-
-
-    </div>
-  </main>
+  
+</main>
 
   <script src="cube.js"></script>
   <script src="controls.js"></script>

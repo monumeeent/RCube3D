@@ -1,11 +1,18 @@
+// filename: controls.js
+// Functions/work: Parses moves, manages the queue and undo history, and handles control-bar UI.
+// What this file does: Provides move controls, algorithm input, scramble, undo, recent history, and copy.
+// Connected to: Uses RubiksCube from cube.js; called by main.js and hotkeys.js.
+
 (() => {
   'use strict';
 
   const MAX_ALGORITHM_LENGTH = 2000;
   const MAX_PENDING_MOVES = 500;
+  const MAX_HISTORY = 1000;
   const MOVE_EPSILON = 0.1;
 
-  const MOVE_TOKEN = /^(Rw|Lw|Uw|Dw|Fw|Bw|[RLUDFBrludfbMESxyz])(2|')?$/;
+  const MOVE_TOKEN =
+    /^(Rw|Lw|Uw|Dw|Fw|Bw|[RLUDFBrludfbMESxyz])(2|')?$/;
 
   let queueHead = 0;
   let THREE = null;
@@ -13,6 +20,7 @@
   let lastFrontAxis = null;
   let moveHistory = [];
   let pendingUndoMoves = 0;
+  let scrambleHistory = [];
 
   window.moveQueue = [];
 
@@ -24,29 +32,156 @@
     }
   }
 
-  function enqueueUndoMove(token) {
-    const pending = window.moveQueue.length - queueHead;
-
-    if (pending + 1 > MAX_PENDING_MOVES) {
-      throw new Error(`The move queue is limited to ${MAX_PENDING_MOVES} moves.`);
+  function parseMove(token) {
+    if (typeof token !== 'string') {
+      throw new Error('Move must be text.');
     }
 
-    compactQueueIfNeeded();
-
-    const insertAt = queueHead + pendingUndoMoves;
-    window.moveQueue.splice(insertAt, 0, token);
-    pendingUndoMoves++;
-  }
-
-  function recordExecutedMove(token) {
-    if (pendingUndoMoves > 0) {
-      pendingUndoMoves--;
-      return;
+    const match = MOVE_TOKEN.exec(token);
+    if (!match) {
+      throw new Error(`Invalid move: "${token}"`);
     }
 
-    moveHistory.push(token);
+    return { token };
   }
 
+  function compactQueueIfNeeded() {
+    if (
+      queueHead > 0 &&
+      (queueHead >= window.moveQueue.length / 2 || queueHead > 128)
+    ) {
+      window.moveQueue = window.moveQueue.slice(queueHead);
+      queueHead = 0;
+    }
+  }
+
+function enqueueMoves(tokens, kind = 'solving') {
+  const pending = window.moveQueue.length - queueHead;
+
+  if (pending + tokens.length > MAX_PENDING_MOVES) {
+    throw new Error(
+      `The move queue is limited to ${MAX_PENDING_MOVES} moves.`
+    );
+  }
+
+  compactQueueIfNeeded();
+  window.moveQueue.push(...tokens.map(token => ({ token, kind })));
+  renderRecentMoves();
+}
+
+function enqueueUndoMove(token) {
+  const pending = window.moveQueue.length - queueHead;
+
+  if (pending + 1 > MAX_PENDING_MOVES) {
+    throw new Error(
+      `The move queue is limited to ${MAX_PENDING_MOVES} moves.`
+    );
+  }
+
+  compactQueueIfNeeded();
+
+  const insertAt = queueHead + pendingUndoMoves;
+  window.moveQueue.splice(insertAt, 0, {
+    token,
+    kind: 'solving'
+  });
+  pendingUndoMoves++;
+  renderRecentMoves();
+}
+
+function takeNextMove() {
+  if (queueHead >= window.moveQueue.length) {
+    window.moveQueue.length = 0;
+    queueHead = 0;
+    renderRecentMoves();
+    return null;
+  }
+
+  const move = window.moveQueue[queueHead++];
+  renderRecentMoves();
+  return move;
+}
+
+function clearMoveQueue() {
+  window.moveQueue.length = 0;
+  queueHead = 0;
+  pendingUndoMoves = 0;
+  renderRecentMoves();
+}
+  function renderMoveTags(containerId, moves, isQueued = false) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+
+  container.replaceChildren();
+
+  if (moves.length === 0) {
+    const empty = document.createElement('span');
+    empty.className = 'history-empty';
+    empty.textContent = 'None';
+    container.appendChild(empty);
+    return;
+  }
+
+  for (const move of moves.slice(-100)) {
+    const tag = document.createElement('span');
+    tag.className = isQueued
+      ? 'history-tag queued-tag'
+      : 'history-tag';
+    tag.textContent = move;
+    container.appendChild(tag);
+  }
+}
+
+// controls.js -> inside renderRecentMoves()
+function renderRecentMoves() {
+  const pendingMoves = window.moveQueue
+    .slice(queueHead)
+    .filter(Boolean);
+
+  const queuedScrambles = pendingMoves
+    .filter(move => move.kind === 'scramble')
+    .map(move => move.token);
+
+  const queuedSolvingMoves = pendingMoves
+    .filter(move => move.kind !== 'scramble')
+    .map(move => move.token);
+
+  renderMoveTags('scrambleQueueList', queuedScrambles, true);
+  renderMoveTags('scrambleMovesList', scrambleHistory);
+  renderMoveTags('solvingQueueList', queuedSolvingMoves, true);
+  renderMoveTags('recentMovesList', moveHistory);
+
+  // Update the bottom-right moves bar text (newest moves on the left)
+  const displayEl = document.getElementById('solvingMovesDisplay');
+  if (displayEl) {
+    if (moveHistory.length > 0) {
+      // Reverses history array so the most recent move appears on the far left
+      displayEl.textContent = [...moveHistory].reverse().join(' ');
+      
+      // Keeps the horizontal scroll locked to the far left (showing the latest move)
+      displayEl.scrollLeft = 0;
+    } else {
+      displayEl.textContent = '--';
+    }
+  }
+}
+
+function recordExecutedMove(token, kind = 'solving') {
+  if (pendingUndoMoves > 0) {
+    pendingUndoMoves--;
+    renderRecentMoves();
+    return;
+  }
+
+  const history = kind === 'scramble' ? scrambleHistory : moveHistory;
+  history.push(token);
+
+  if (history.length > MAX_HISTORY) {
+    history.splice(0, history.length - MAX_HISTORY);
+  }
+
+  renderRecentMoves();
+}
   function invertMove(token) {
     if (token.endsWith('2')) return token;
     if (token.endsWith("'")) return token.slice(0, -1);
@@ -63,77 +198,21 @@
 
     try {
       enqueueUndoMove(invertMove(previousMove));
+      renderRecentMoves();
       reportStatus(`Undo queued for ${previousMove}.`);
     } catch (error) {
       moveHistory.push(previousMove);
+      renderRecentMoves();
       reportStatus(error.message, true);
     }
   }
 
   function clearMoveHistory() {
-    moveHistory = [];
-    pendingUndoMoves = 0;
-  }
-
-  function parseMove(token) {
-    if (typeof token !== 'string') {
-      throw new Error('Move must be text.');
-    }
-
-    const match = MOVE_TOKEN.exec(token);
-    if (!match) {
-      throw new Error(`Invalid move: "${token}"`);
-    }
-
-    const symbol = match[1];
-    const wide = symbol.endsWith('w') || /^[rludfb]$/.test(symbol);
-    const face = symbol.endsWith('w') ? symbol[0].toLowerCase() : symbol;
-
-    return {
-      token,
-      face,
-      wide,
-      prime: match[2] === "'",
-      double: match[2] === '2'
-    };
-  }
-
-  function compactQueueIfNeeded() {
-    if (
-      queueHead > 0 &&
-      (queueHead >= window.moveQueue.length / 2 || queueHead > 128)
-    ) {
-      window.moveQueue = window.moveQueue.slice(queueHead);
-      queueHead = 0;
-    }
-  }
-
-  function enqueueMoves(tokens) {
-    const pending = window.moveQueue.length - queueHead;
-
-    if (pending + tokens.length > MAX_PENDING_MOVES) {
-      throw new Error(`The move queue is limited to ${MAX_PENDING_MOVES} moves.`);
-    }
-
-    compactQueueIfNeeded();
-    window.moveQueue.push(...tokens);
-  }
-
-  function takeNextMove() {
-    if (queueHead >= window.moveQueue.length) {
-      window.moveQueue.length = 0;
-      queueHead = 0;
-      return null;
-    }
-
-    return window.moveQueue[queueHead++];
-  }
-
-  function clearMoveQueue() {
-    window.moveQueue.length = 0;
-    queueHead = 0;
-    pendingUndoMoves = 0;
-  }
+  moveHistory = [];
+  scrambleHistory = [];
+  pendingUndoMoves = 0;
+  renderRecentMoves();
+}
 
   function queueMove(token) {
     try {
@@ -166,8 +245,10 @@
     const tokens = raw ? raw.split(/\s+/) : [];
 
     try {
+      // Validate the complete algorithm before adding any moves to the queue.
       const moves = tokens.map(parseMove);
       enqueueMoves(moves.map(move => move.token));
+
       reportStatus(
         moves.length
           ? `Queued ${moves.length} move${moves.length === 1 ? '' : 's'}.`
@@ -185,12 +266,14 @@
 
     for (let i = 0; i < 20; i++) {
       const face = faces[Math.floor(Math.random() * faces.length)];
-      const modifier = modifiers[Math.floor(Math.random() * modifiers.length)];
+      const modifier =
+        modifiers[Math.floor(Math.random() * modifiers.length)];
+
       moves.push(face + modifier);
     }
 
     try {
-      enqueueMoves(moves);
+      enqueueMoves(moves, 'scramble');
       reportStatus('Queued a 20-move scramble.');
     } catch (error) {
       reportStatus(error.message, true);
@@ -228,12 +311,20 @@
       throw new Error('Cube controls have not been initialized.');
     }
 
-    const move = parseMove(token);
-    const upperFace = move.face.toUpperCase();
-    const directions = getRelativeDirections();
+    const match = MOVE_TOKEN.exec(token);
+    if (!match) {
+      throw new Error(`Invalid move: "${token}"`);
+    }
 
-    const isRotation = ['x', 'y', 'z'].includes(move.face);
-    const isSlice = ['M', 'E', 'S'].includes(move.face);
+    const symbol = match[1];
+    const modifier = match[2] || '';
+    const isWide = symbol.endsWith('w') || /^[rludfb]$/.test(symbol);
+    const face = symbol.endsWith('w') ? symbol[0].toLowerCase() : symbol;
+    const upperFace = face.toUpperCase();
+
+    const directions = getRelativeDirections();
+    const isRotation = ['x', 'y', 'z'].includes(face);
+    const isSlice = ['M', 'E', 'S'].includes(face);
 
     let axis;
 
@@ -242,7 +333,7 @@
         x: directions.R,
         y: directions.U,
         z: directions.F
-      }[move.face].clone();
+      }[face].clone();
     } else {
       const axisByFace = {
         R: directions.R,
@@ -263,10 +354,13 @@
       throw new Error(`Could not resolve an axis for "${token}".`);
     }
 
+    const prime = modifier === "'";
+    const double = modifier === '2';
+
     let angle =
       (Math.PI / 2) *
-      (move.prime ? -1 : 1) *
-      (move.double ? 2 : 1);
+      (prime ? -1 : 1) *
+      (double ? 2 : 1);
 
     if (isRotation || ['R', 'U', 'F', 'S'].includes(upperFace)) {
       angle *= -1;
@@ -287,7 +381,7 @@
 
     const positiveSide = ['R', 'U', 'F'].includes(upperFace) ? 1 : -1;
 
-    if (move.wide) {
+    if (isWide) {
       return {
         axis,
         angle,
@@ -308,73 +402,106 @@
         MOVE_EPSILON
     };
   }
-  
-  // Add these initializations at the end of controls.js
-document.addEventListener('DOMContentLoaded', () => {
-  // Drawer Toggle Logic
-  const toggleBtn = document.getElementById('toggleDrawerBtn');
-  const drawer = document.getElementById('moveDrawer');
 
-  if (toggleBtn && drawer) {
-    toggleBtn.addEventListener('click', () => {
-      const isOpen = drawer.classList.toggle('open');
-      toggleBtn.classList.toggle('open', isOpen);
-    });
-  }
+  async function copyMoveHistory() {
+    if (moveHistory.length === 0) {
+      reportStatus('There are no moves to copy.');
+      return;
+    }
 
-  // Tab Switcher Logic
-  const tabBtns = document.querySelectorAll('.tab-btn');
-  const tabPanels = document.querySelectorAll('.tab-panel');
+    const text = moveHistory.join(' ');
 
-  tabBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      tabBtns.forEach(b => b.classList.remove('active'));
-      tabPanels.forEach(p => p.classList.remove('active'));
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+      } else {
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.setAttribute('readonly', '');
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
 
-      btn.classList.add('active');
-      const targetPanel = document.getElementById(`tab-${btn.dataset.tab}`);
-      if (targetPanel) {
-        targetPanel.classList.add('active');
+        const copied = document.execCommand('copy');
+        textarea.remove();
+
+        if (!copied) {
+          throw new Error('Clipboard copy was not available.');
+        }
       }
+
+      reportStatus('Move history copied.');
+    } catch (error) {
+      reportStatus('Could not copy move history.', true);
+    }
+  }
+
+  function resizeAlgorithmInput() {
+    const input = document.getElementById('alg-input');
+    if (!input) return;
+
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    if (!context) return;
+
+    const style = getComputedStyle(input);
+    context.font = style.font;
+
+    const text = input.value || input.placeholder || '';
+    const measuredWidth = context.measureText(text).width + 48;
+    const maxWidth = Math.max(
+  110,
+  Math.min(270, Math.floor(window.innerWidth * 0.38))
+);
+
+    input.style.width =
+      `${Math.min(maxWidth, Math.max(120, measuredWidth))}px`;
+  }
+
+  function initializeControlsUI() {
+    const toggleBtn = document.getElementById('toggleDrawerBtn');
+    const drawer = document.getElementById('moveDrawer');
+
+    if (toggleBtn && drawer) {
+      toggleBtn.addEventListener('click', () => {
+        const isOpen = drawer.classList.toggle('open');
+        toggleBtn.classList.toggle('open', isOpen);
+        toggleBtn.setAttribute('aria-expanded', String(isOpen));
+      });
+    }
+
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    const tabPanels = document.querySelectorAll('.tab-panel');
+
+    tabButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        tabButtons.forEach(item => item.classList.remove('active'));
+        tabPanels.forEach(panel => panel.classList.remove('active'));
+
+        button.classList.add('active');
+
+        const panel = document.getElementById(
+          `tab-${button.dataset.tab}`
+        );
+
+        if (panel) {
+          panel.classList.add('active');
+        }
+      });
     });
-  });
-});
 
-// Update the recent moves tag display in the bottom bar
-function updateRecentMovesUI() {
-  const container = document.getElementById('recentMovesList');
-  if (!container) return;
+    const input = document.getElementById('alg-input');
+    input?.addEventListener('input', resizeAlgorithmInput);
+    window.addEventListener('resize', resizeAlgorithmInput);
+    resizeAlgorithmInput();
 
-  if (!moveHistory || moveHistory.length === 0) {
-    container.innerHTML = '<span class="history-empty">None</span>';
-    return;
+    document
+      .getElementById('copyMovesBtn')
+      ?.addEventListener('click', copyMoveHistory);
+
+    renderRecentMoves();
   }
-
-  // Display up to the last 8 moves
-  const recent = moveHistory.slice(-8);
-  container.innerHTML = recent
-    .map(move => `<span class="history-tag">${move}</span>`)
-    .join('');
-
-  container.scrollLeft = container.scrollWidth;
-}
-
-// Hook into existing move execution recorder
-const originalRecordExecutedMove = window.recordExecutedMove;
-window.recordExecutedMove = function (token) {
-  if (typeof originalRecordExecutedMove === 'function') {
-    originalRecordExecutedMove(token);
-  }
-  updateRecentMovesUI();
-};
-
-const originalClearMoveHistory = window.clearMoveHistory;
-window.clearMoveHistory = function () {
-  if (typeof originalClearMoveHistory === 'function') {
-    originalClearMoveHistory();
-  }
-  updateRecentMovesUI();
-};
 
   window.configureCubeControls = configure;
   window.takeNextMove = takeNextMove;
@@ -397,4 +524,12 @@ window.clearMoveHistory = function () {
       reportStatus('Cube reset to solved.');
     }
   };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeControlsUI, {
+      once: true
+    });
+  } else {
+    initializeControlsUI();
+  }
 })();

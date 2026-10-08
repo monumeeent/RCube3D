@@ -1,3 +1,8 @@
+// filename: hotkeys.js
+// Functions/work: Maps keyboard keys and modifier combinations to cube moves.
+// What this file does: Handles face turns, slice turns, rotations, and Ctrl+Z undo.
+// Connected to: Calls queueMove() and undoCubeMove() from controls.js.
+
 (() => {
   'use strict';
 
@@ -37,7 +42,8 @@
 
     const key = event.key.toLowerCase();
 
-    if (event.ctrlKey && !event.altKey && key === 'z') {
+    // Leave Ctrl+Shift+Z available for the browser's redo behavior.
+    if (event.ctrlKey && !event.altKey && !event.shiftKey && key === 'z') {
       event.preventDefault();
       window.undoCubeMove?.();
       return;
@@ -49,15 +55,12 @@
 
     if (!face && !slice && !rotation) return;
 
+    // Ctrl creates wide moves for face keys only.
     if ((slice || rotation) && event.ctrlKey) return;
 
-    let move;
-
-    if (face) {
-      move = event.ctrlKey ? face.toLowerCase() : face;
-    } else {
-      move = slice || rotation;
-    }
+    let move = face
+      ? (event.ctrlKey ? face.toLowerCase() : face)
+      : (slice || rotation);
 
     if (event.altKey) {
       move += '2';

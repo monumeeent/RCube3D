@@ -64,12 +64,18 @@
   function processQueue() {
     if (window.RubiksCube.isAnimating) return;
 
-    const move = window.takeNextMove();
-    if (move === null) return;
+    const queuedMove = window.takeNextMove();
+    if (queuedMove === null) return;
+
+    // Support both the new { token, kind } queue entries and plain move strings.
+    const token =
+      typeof queuedMove === 'string' ? queuedMove : queuedMove.token;
+    const kind =
+      typeof queuedMove === 'string' ? 'solving' : queuedMove.kind;
 
     try {
-      window.RubiksCube.executeMove(move, window.getTurnParameters);
-      window.recordExecutedMove(move);
+      window.RubiksCube.executeMove(token, window.getTurnParameters);
+      window.recordExecutedMove(token, kind);
     } catch (error) {
       console.error('Move failed:', error);
       window.clearMoveQueue();
@@ -135,6 +141,7 @@
     scene.add(fillLight);
 
     window.RubiksCube.init(THREE, scene);
+
     window.rebuildCube = () => {
       window.clearMoveHistory();
       window.RubiksCube.rebuildCube();
