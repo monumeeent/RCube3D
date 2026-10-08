@@ -249,3 +249,72 @@ input[type="text"]:focus {
 @media (prefers-reduced-motion: reduce) {
   .main-layout > *, button { animation: none !important; transition: none !important; }
 }
+/* --- Navigation Header --- */
+.site-nav {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 40px;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.site-nav * {
+  pointer-events: auto;
+}
+
+.brand-title {
+  font-family: 'Fraunces', serif;
+  font-weight: 600;
+  font-size: 1.5rem;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+/* --- Fullscreen Centered Main Layout --- */
+body {
+  padding: 0;
+  margin: 0;
+  overflow: hidden; /* Prevents scrollbars */
+  height: 100vh;
+  width: 100vw;
+  display: block;
+}
+
+.main-layout {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  max-width: none;
+}
+
+/* 3D Canvas centered across the whole viewport */
+#canvas-container {
+  position: absolute;
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  z-index: 1;
+}
+
+/* Floating Sidebar Panel on the Right */
+.panel {
+  position: absolute;
+  top: 80px;
+  right: 32px;
+  bottom: 32px;
+  width: 380px;
+  max-width: calc(100vw - 64px);
+  z-index: 5;
+  overflow-y: auto; /* Scrollable if controls exceed screen height */
+  scrollbar-width: thin;
+  scrollbar-color: var(--line) transparent;
+}
