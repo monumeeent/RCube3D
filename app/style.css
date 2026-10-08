@@ -32,6 +32,7 @@ body {
   overflow: hidden;
 }
 
+/* Header & Brand Title */
 .site-nav {
   position: absolute;
   top: 0;
@@ -63,6 +64,7 @@ body {
   font-style: italic;
 }
 
+/* App Canvas Layout */
 .main-layout {
   position: relative;
   width: 100vw;
@@ -84,8 +86,21 @@ body {
   display: block;
 }
 
-/* Master Fixed Container */
-/* Centered, compact master container */
+/* Status Overlay */
+#app-status {
+  position: absolute;
+  top: 24px;
+  right: 40px;
+  font-size: 0.85rem;
+  color: var(--ink-dim);
+  z-index: 10;
+  pointer-events: none;
+}
+
+/* ==========================================================================
+   Master Centered Control Bar Container
+   ========================================================================== */
+
 .control-bar-container {
   position: fixed;
   bottom: 24px;
@@ -95,11 +110,11 @@ body {
   flex-direction: column;
   align-items: center;
   z-index: 100;
-  width: auto; /* Shrinks to content, perfect for middle alignment */
+  width: auto;
   max-width: 90vw;
 }
 
-/* Move Drawer Popover Panel - Centered directly above toggle button */
+/* Move Drawer Popover Panel */
 .move-drawer {
   background: rgba(22, 19, 32, 0.94);
   backdrop-filter: blur(20px);
@@ -112,7 +127,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: max-content; /* Sits cleanly centered above the bar */
+  width: max-content;
   
   transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
   opacity: 0;
@@ -128,8 +143,7 @@ body {
   pointer-events: auto;
 }
 
-
-/* Drawer Tabs */
+/* Drawer Navigation Tabs */
 .drawer-tabs {
   display: flex;
   gap: 6px;
@@ -191,8 +205,30 @@ body {
   grid-template-columns: repeat(3, 42px);
 }
 
-/* Main Single Control Bar */
-/* Compact, Pill-shaped Single Control Bar centered in the middle */
+/* General Buttons inside Drawer */
+.move-drawer button {
+  background-color: rgba(50, 44, 71, 0.5);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 6px 0;
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.move-drawer button:hover {
+  background-color: rgba(240, 163, 86, 0.12);
+  border-color: var(--amber);
+  color: var(--amber);
+}
+
+/* ==========================================================================
+   Main One-Row Control Bar
+   ========================================================================== */
+
 .single-control-bar {
   display: flex;
   align-items: center;
@@ -208,14 +244,6 @@ body {
   width: auto;
 }
 
-/* Limit history tag width so the bar stays compact */
-.history-section {
-  max-width: 200px;
-  display: flex;
-  align-items: center;
-  overflow: hidden;
-}
-
 .bar-section {
   display: flex;
   align-items: center;
@@ -228,13 +256,28 @@ body {
   background-color: var(--line);
 }
 
-/* Input Section */
+/* Input Section & Icons */
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-icon {
+  position: absolute;
+  left: 10px;
+  width: 12px;
+  height: 12px;
+  color: var(--ink-dim);
+  pointer-events: none;
+}
+
 .input-section input[type="text"] {
   background-color: var(--bg);
   border: 1px solid var(--line);
   border-radius: 20px;
   color: var(--ink);
-  padding: 6px 12px;
+  padding: 6px 12px 6px 28px;
   font-family: 'Space Grotesk', monospace;
   font-size: 0.8rem;
   width: 130px;
@@ -245,18 +288,43 @@ body {
   border-color: var(--teal);
 }
 
-/* Actions Section */
-.actions-section {
+/* SVG Buttons Styling */
+.btn-apply,
+.btn-action-sm,
+.btn-reset-sm {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-family: inherit;
   font-size: 0.8rem;
+  font-weight: 500;
+  transition: all 0.15s ease;
+}
+
+.btn-icon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.btn-apply {
+  color: var(--teal);
+  border: 1px solid var(--teal);
+  border-radius: 16px;
+  padding: 4px 10px;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.btn-apply:hover {
+  background-color: rgba(79, 209, 197, 0.15);
 }
 
 .btn-action-sm {
-  background: transparent;
   color: var(--teal);
-  border: none;
-  cursor: pointer;
-  font-weight: 500;
-  font-size: 0.8rem;
   padding: 4px 6px;
 }
 
@@ -265,12 +333,7 @@ body {
 }
 
 .btn-reset-sm {
-  background: transparent;
   color: var(--danger);
-  border: none;
-  cursor: pointer;
-  font-weight: 500;
-  font-size: 0.8rem;
   padding: 4px 6px;
 }
 
@@ -283,7 +346,7 @@ body {
   font-weight: 300;
 }
 
-/* Toggle Button */
+/* Toggle Drawer Button */
 .move-bar-toggle {
   background: var(--bg-raised);
   border: 1px solid var(--line);
@@ -315,14 +378,12 @@ body {
   transform: rotate(180deg);
 }
 
-/* Recent Moves History Section */
+/* History Section */
 .history-section {
-  flex: 1;
-  overflow: hidden;
+  max-width: 200px;
   display: flex;
   align-items: center;
-  justify-content: flex-start;
-  min-width: 0;
+  overflow: hidden;
 }
 
 .history-label {
@@ -361,84 +422,4 @@ body {
   font-size: 0.75rem;
   color: var(--ink-dim);
   font-style: italic;
-}
-
-/* General Buttons inside Drawer */
-button {
-  background-color: rgba(50, 44, 71, 0.5);
-  color: var(--ink);
-  border: 1px solid var(--line);
-  border-radius: 6px;
-  padding: 6px 0;
-  font-family: inherit;
-  font-size: 0.8rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-button:hover {
-  background-color: rgba(240, 163, 86, 0.12);
-  border-color: var(--amber);
-  color: var(--amber);
-}
-
-.btn-apply {
-  background-color: transparent;
-  color: var(--teal);
-  border: 1px solid var(--teal);
-  border-radius: 16px;
-  padding: 4px 10px;
-  font-size: 0.78rem;
-  font-weight: 600;
-}
-
-.btn-apply:hover {
-  background-color: rgba(79, 209, 197, 0.15);
-}
-
-#app-status {
-  position: absolute;
-  top: 24px;
-  right: 40px;
-  font-size: 0.85rem;
-  color: var(--ink-dim);
-  z-index: 10;
-  pointer-events: none;
-}
-
-/* Flexible button alignment for SVG icons */
-.btn-apply,
-.btn-action-sm,
-.btn-reset-sm {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-}
-
-/* Icon sizing */
-.btn-icon {
-  width: 14px;
-  height: 14px;
-  flex-shrink: 0;
-}
-
-/* Input Wrapper for inline icon */
-.input-wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.input-icon {
-  position: absolute;
-  left: 10px;
-  width: 12px;
-  height: 12px;
-  color: var(--ink-dim);
-  pointer-events: none;
-}
-
-.input-section input[type="text"] {
-  padding-left: 28px; /* Extra padding so text doesn't overlap the icon */
 }
