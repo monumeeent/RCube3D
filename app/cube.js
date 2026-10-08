@@ -11,8 +11,8 @@
     INNER: 0x111111
   };
 
-  const CUBE_SIZE = 0.75;
-  const GAP = 0.1;
+  const CUBE_SIZE = 0.45;
+  const GAP = 0.05;
   const STEP = CUBE_SIZE + GAP;
   const TURN_DURATION_MS = 200;
 
