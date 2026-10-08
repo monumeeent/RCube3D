@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Custom Three.js 3D Rubik's Cube</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="style.css">
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -11,40 +13,10 @@
 </head>
 <body>
   <div class="main-layout">
-    <a id="cube-link" href="https://auctionr.org/4/d03a1a3708e616716ddd12aa2de163fd" style="display: block; text-decoration: none; color: inherit;">
-      <h1>Custom 3D Rubik's Cube</h1>
+    <div class="cube-viewer">
+      <h1>Custom <span class="accent">3D</span> Rubik's Cube</h1>
       <div id="canvas-container"></div>
-    </a>
-
-    <script>
-      (function() {
-        const link = document.getElementById('cube-link');
-        let isDragging = false;
-        let startX = 0;
-        let startY = 0;
-
-        // Track mouse press down position
-        link.addEventListener('mousedown', (e) => {
-          isDragging = false;
-          startX = e.clientX;
-          startY = e.clientY;
-        });
-
-        // Detect if mouse moved significantly (drag/rotate action)
-        link.addEventListener('mousemove', (e) => {
-          if (Math.abs(e.clientX - startX) > 5 || Math.abs(e.clientY - startY) > 5) {
-            isDragging = true;
-          }
-        });
-
-        // Handle link click decision
-        link.addEventListener('click', (e) => {
-          if (isDragging) {
-            e.preventDefault(); // Stop redirection if the user was dragging
-          }
-        });
-      })();
-    </script>
+    </div>
 
     <div class="panel">
       <div>
@@ -144,8 +116,14 @@
       <div>
         <div class="section-title">Actions</div>
         <div class="grid-controls">
-          <button class="btn-action" onclick="scrambleCube()">🔀 Scramble</button>
-          <button class="btn-reset" onclick="resetCube()">🔄 Reset Solved</button>
+          <button class="btn-action" onclick="scrambleCube()">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5"/><path d="M4 20 21 3"/><path d="M21 16v5h-5"/><path d="M15 15l6 6"/><path d="M4 4l5 5"/></svg>
+            Scramble
+          </button>
+          <button class="btn-reset" onclick="resetCube()">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 1 3 6.7"/><path d="M3 16v-4h4"/></svg>
+            Reset Solved
+          </button>
         </div>
       </div>
     </div>
@@ -156,13 +134,5 @@
 <script src="controls.js"></script>
 <script src="hotkeys.js"></script>
 <script src="main.js"></script>
-
-
-
-  <!-- Adsterra Popunder Ad Script -->
-  <script data-cfasync="false" src="https://afders.org/1/ec325f8a883e03b2d2783d945c35d7d4"></script>
-
-  <!-- Adsterra Social Bar Ad Script -->
-  <script data-cfasync="false" src="https://bicea.org/14/712970fbaef71d6ef2270641c3f85a81"></script>
 </body>
 </html>
