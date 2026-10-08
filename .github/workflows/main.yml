@@ -32,7 +32,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: '.' # Uploads root directory (where index.html is located)
+          path: 'app' # Uploads root directory (where index.html is located)
 
       - name: Deploy to GitHub Pages
         id: deployment
