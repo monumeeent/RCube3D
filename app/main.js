@@ -1,8 +1,3 @@
-// filename: main.js
-// Functions/work: Initializes the page, Three.js scene, renderer, and animation loop.
-// What this file does: Connects the cube and controls files and handles resizing/status.
-// Connected to: cube.js manages cube geometry; controls.js manages moves and UI actions.
-
 (() => {
   'use strict';
 
@@ -54,18 +49,17 @@
   }
 
   function resizeRenderer() {
-  if (!container || !renderer || !camera) return;
+    if (!container || !renderer || !camera) return;
 
-  const width = container.clientWidth;
-  const height = container.clientHeight;
+    const width = container.clientWidth;
+    const height = container.clientHeight;
 
-  if (!width || !height) return;
+    if (!width || !height) return;
 
-  // Set updateStyle to true so CSS dimensions match container dimensions
-  renderer.setSize(width, height, true);
-  camera.aspect = width / height;
-  camera.updateProjectionMatrix();
-}
+    renderer.setSize(width, height, true);
+    camera.aspect = width / height;
+    camera.updateProjectionMatrix();
+  }
 
   function processQueue() {
     if (window.RubiksCube.isAnimating) return;
@@ -75,8 +69,8 @@
 
     try {
       window.RubiksCube.executeMove(move, window.getTurnParameters);
-    window.recordExecutedMove(move);
-	} catch (error) {
+      window.recordExecutedMove(move);
+    } catch (error) {
       console.error('Move failed:', error);
       window.clearMoveQueue();
       window.rebuildCube();
@@ -142,9 +136,9 @@
 
     window.RubiksCube.init(THREE, scene);
     window.rebuildCube = () => {
-  window.clearMoveHistory();
-  window.RubiksCube.rebuildCube();
-};
+      window.clearMoveHistory();
+      window.RubiksCube.rebuildCube();
+    };
 
     resizeRenderer();
 

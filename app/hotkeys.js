@@ -1,8 +1,3 @@
-// filename: hotkeys.js
-// Functions/work: Maps keyboard keys and modifiers to cube moves.
-// What this file does: Queues face turns, slice moves, cube rotations, and undo.
-// Connected to: Calls queueMove() and undoCubeMove() from controls.js.
-
 (() => {
   'use strict';
 
@@ -54,7 +49,6 @@
 
     if (!face && !slice && !rotation) return;
 
-    // Ctrl makes face moves wide. It is not used for slice moves or rotations.
     if ((slice || rotation) && event.ctrlKey) return;
 
     let move;
@@ -65,7 +59,6 @@
       move = slice || rotation;
     }
 
-    // Alt takes precedence over Shift if both are pressed.
     if (event.altKey) {
       move += '2';
     } else if (event.shiftKey) {

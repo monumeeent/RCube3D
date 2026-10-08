@@ -1,8 +1,3 @@
-// filename: controls.js
-// Functions/work: Parses moves, manages the move queue, and handles button actions.
-// What this file does: Supports move notation, algorithms, scrambles, and turn parameters.
-// Connected to: cube.js provides the cube step size; main.js configures the camera and status reporting.
-
 (() => {
   'use strict';
 
@@ -10,8 +5,7 @@
   const MAX_PENDING_MOVES = 500;
   const MOVE_EPSILON = 0.1;
 
-  const MOVE_TOKEN =
-    /^(Rw|Lw|Uw|Dw|Fw|Bw|[RLUDFBrludfbMESxyz])(2|')?$/;
+  const MOVE_TOKEN = /^(Rw|Lw|Uw|Dw|Fw|Bw|[RLUDFBrludfbMESxyz])(2|')?$/;
 
   let queueHead = 0;
   let THREE = null;
@@ -29,58 +23,57 @@
       console[isError ? 'error' : 'info'](message);
     }
   }
-  
+
   function enqueueUndoMove(token) {
-  const pending = window.moveQueue.length - queueHead;
+    const pending = window.moveQueue.length - queueHead;
 
-  if (pending + 1 > MAX_PENDING_MOVES) {
-    throw new Error(`The move queue is limited to ${MAX_PENDING_MOVES} moves.`);
+    if (pending + 1 > MAX_PENDING_MOVES) {
+      throw new Error(`The move queue is limited to ${MAX_PENDING_MOVES} moves.`);
+    }
+
+    compactQueueIfNeeded();
+
+    const insertAt = queueHead + pendingUndoMoves;
+    window.moveQueue.splice(insertAt, 0, token);
+    pendingUndoMoves++;
   }
 
-  compactQueueIfNeeded();
+  function recordExecutedMove(token) {
+    if (pendingUndoMoves > 0) {
+      pendingUndoMoves--;
+      return;
+    }
 
-  // Keep undo moves ahead of regular queued moves, in the order requested.
-  const insertAt = queueHead + pendingUndoMoves;
-  window.moveQueue.splice(insertAt, 0, token);
-  pendingUndoMoves++;
-}
-
-function recordExecutedMove(token) {
-  if (pendingUndoMoves > 0) {
-    pendingUndoMoves--;
-    return;
+    moveHistory.push(token);
   }
 
-  moveHistory.push(token);
-}
-
-function invertMove(token) {
-  if (token.endsWith('2')) return token;
-  if (token.endsWith("'")) return token.slice(0, -1);
-  return `${token}'`;
-}
-
-function undoCubeMove() {
-  const previousMove = moveHistory.pop();
-
-  if (!previousMove) {
-    reportStatus('There is no move to undo.');
-    return;
+  function invertMove(token) {
+    if (token.endsWith('2')) return token;
+    if (token.endsWith("'")) return token.slice(0, -1);
+    return `${token}'`;
   }
 
-  try {
-    enqueueUndoMove(invertMove(previousMove));
-    reportStatus(`Undo queued for ${previousMove}.`);
-  } catch (error) {
-    moveHistory.push(previousMove);
-    reportStatus(error.message, true);
-  }
-}
+  function undoCubeMove() {
+    const previousMove = moveHistory.pop();
 
-function clearMoveHistory() {
-  moveHistory = [];
-  pendingUndoMoves = 0;
-}
+    if (!previousMove) {
+      reportStatus('There is no move to undo.');
+      return;
+    }
+
+    try {
+      enqueueUndoMove(invertMove(previousMove));
+      reportStatus(`Undo queued for ${previousMove}.`);
+    } catch (error) {
+      moveHistory.push(previousMove);
+      reportStatus(error.message, true);
+    }
+  }
+
+  function clearMoveHistory() {
+    moveHistory = [];
+    pendingUndoMoves = 0;
+  }
 
   function parseMove(token) {
     if (typeof token !== 'string') {
@@ -137,10 +130,10 @@ function clearMoveHistory() {
   }
 
   function clearMoveQueue() {
-  window.moveQueue.length = 0;
-  queueHead = 0;
-  pendingUndoMoves = 0;
-}
+    window.moveQueue.length = 0;
+    queueHead = 0;
+    pendingUndoMoves = 0;
+  }
 
   function queueMove(token) {
     try {
@@ -315,6 +308,73 @@ function clearMoveHistory() {
         MOVE_EPSILON
     };
   }
+  
+  // Add these initializations at the end of controls.js
+document.addEventListener('DOMContentLoaded', () => {
+  // Drawer Toggle Logic
+  const toggleBtn = document.getElementById('toggleDrawerBtn');
+  const drawer = document.getElementById('moveDrawer');
+
+  if (toggleBtn && drawer) {
+    toggleBtn.addEventListener('click', () => {
+      const isOpen = drawer.classList.toggle('open');
+      toggleBtn.classList.toggle('open', isOpen);
+    });
+  }
+
+  // Tab Switcher Logic
+  const tabBtns = document.querySelectorAll('.tab-btn');
+  const tabPanels = document.querySelectorAll('.tab-panel');
+
+  tabBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      tabBtns.forEach(b => b.classList.remove('active'));
+      tabPanels.forEach(p => p.classList.remove('active'));
+
+      btn.classList.add('active');
+      const targetPanel = document.getElementById(`tab-${btn.dataset.tab}`);
+      if (targetPanel) {
+        targetPanel.classList.add('active');
+      }
+    });
+  });
+});
+
+// Update the recent moves tag display in the bottom bar
+function updateRecentMovesUI() {
+  const container = document.getElementById('recentMovesList');
+  if (!container) return;
+
+  if (!moveHistory || moveHistory.length === 0) {
+    container.innerHTML = '<span class="history-empty">None</span>';
+    return;
+  }
+
+  // Display up to the last 8 moves
+  const recent = moveHistory.slice(-8);
+  container.innerHTML = recent
+    .map(move => `<span class="history-tag">${move}</span>`)
+    .join('');
+
+  container.scrollLeft = container.scrollWidth;
+}
+
+// Hook into existing move execution recorder
+const originalRecordExecutedMove = window.recordExecutedMove;
+window.recordExecutedMove = function (token) {
+  if (typeof originalRecordExecutedMove === 'function') {
+    originalRecordExecutedMove(token);
+  }
+  updateRecentMovesUI();
+};
+
+const originalClearMoveHistory = window.clearMoveHistory;
+window.clearMoveHistory = function () {
+  if (typeof originalClearMoveHistory === 'function') {
+    originalClearMoveHistory();
+  }
+  updateRecentMovesUI();
+};
 
   window.configureCubeControls = configure;
   window.takeNextMove = takeNextMove;
@@ -324,7 +384,7 @@ function clearMoveHistory() {
   window.queueMove = queueMove;
   window.applyAlgorithm = applyAlgorithm;
   window.scrambleCube = scrambleCube;
-  
+
   window.undoCubeMove = undoCubeMove;
   window.recordExecutedMove = recordExecutedMove;
   window.clearMoveHistory = clearMoveHistory;

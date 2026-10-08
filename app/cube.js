@@ -1,8 +1,3 @@
-// filename: cube.js
-// Functions/work: Builds, resets, and animates the cube's cubies.
-// What this file does: Manages the Three.js cube geometry and move animation.
-// Connected to: controls.js supplies move parameters; main.js initializes and renders the scene.
-
 (() => {
   'use strict';
 
@@ -101,8 +96,7 @@
   }
 
   function executeMove(token, getTurnParameters) {
-    const { axis, angle, filterFn } =
-      getTurnParameters(token, STEP);
+    const { axis, angle, filterFn } = getTurnParameters(token, STEP);
     const sliceCubies = cubies.filter(filterFn);
 
     if (!sliceCubies.length) {
@@ -122,10 +116,7 @@
     function animateTurn(now) {
       if (generation !== cubeGeneration) return;
 
-      const progress = Math.min(
-        (now - startTime) / TURN_DURATION_MS,
-        1
-      );
+      const progress = Math.min((now - startTime) / TURN_DURATION_MS, 1);
 
       const easedProgress =
         progress < 0.5
