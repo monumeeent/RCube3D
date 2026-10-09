@@ -265,10 +265,16 @@ function buildCard(caseData, color) {
     card.className = 'cfop-card';
     card.style.setProperty('--card-color', color);
 
-    // 1. Generate Inverse-Reverse Isometric SVG Diagram
+    // 1. Generate Diagram (2D Top View for OLL, Isometric for F2L & others)
     const svgWrap = document.createElement('div');
     svgWrap.className = 'cfop-card-diagram';
-    svgWrap.innerHTML = window.CfopSVG.buildSVG(caseData);
+
+    if (activeSet === 'oll' && window.OllSVG) {
+      svgWrap.innerHTML = window.OllSVG.buildOllSVG(caseData.alg);
+    } else if (window.F2lSVG) {
+      svgWrap.innerHTML = window.F2lSVG.buildSVG(caseData);
+    }
+
     card.appendChild(svgWrap);
 
     // 2. Card Info
