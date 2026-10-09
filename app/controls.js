@@ -55,7 +55,7 @@
     }
   }
 
-function enqueueMoves(tokens, kind = 'solving') {
+function enqueueMoves(tokens, kind = 'solving', tag = null) {
   const pending = window.moveQueue.length - queueHead;
 
   if (pending + tokens.length > MAX_PENDING_MOVES) {
@@ -65,7 +65,7 @@ function enqueueMoves(tokens, kind = 'solving') {
   }
 
   compactQueueIfNeeded();
-  window.moveQueue.push(...tokens.map(token => ({ token, kind })));
+  window.moveQueue.push(...tokens.map(token => ({ token, kind, tag })));
   renderRecentMoves();
 }
 
@@ -166,7 +166,9 @@ function renderRecentMoves() {
   }
 }
 
-function recordExecutedMove(token, kind = 'solving') {
+function recordExecutedMove(token, kind = 'solving', tag = null) {
+  document.dispatchEvent(new CustomEvent('cube:move', { detail: { token, kind, tag } }));
+
   if (pendingUndoMoves > 0) {
     pendingUndoMoves--;
     renderRecentMoves();
@@ -273,7 +275,8 @@ function recordExecutedMove(token, kind = 'solving') {
     }
 
     try {
-      enqueueMoves(moves, 'scramble');
+      document.dispatchEvent(new CustomEvent('cube:sequence', { detail: { tokens: moves, label: 'Scramble' } }));
+      enqueueMoves(moves, 'scramble', 'seq:+');
       reportStatus('Queued a 20-move scramble.');
     } catch (error) {
       reportStatus(error.message, true);
@@ -437,65 +440,7 @@ function recordExecutedMove(token, kind = 'solving') {
     }
   }
 
-  function resizeAlgorithmInput() {
-    const input = document.getElementById('alg-input');
-    if (!input) return;
-
-    const canvas = document.createElement('canvas');
-    const context = canvas.getContext('2d');
-    if (!context) return;
-
-    const style = getComputedStyle(input);
-    context.font = style.font;
-
-    const text = input.value || input.placeholder || '';
-    const measuredWidth = context.measureText(text).width + 48;
-    const maxWidth = Math.max(
-  110,
-  Math.min(270, Math.floor(window.innerWidth * 0.38))
-);
-
-    input.style.width =
-      `${Math.min(maxWidth, Math.max(120, measuredWidth))}px`;
-  }
-
   function initializeControlsUI() {
-    const toggleBtn = document.getElementById('toggleDrawerBtn');
-    const drawer = document.getElementById('moveDrawer');
-
-    if (toggleBtn && drawer) {
-      toggleBtn.addEventListener('click', () => {
-        const isOpen = drawer.classList.toggle('open');
-        toggleBtn.classList.toggle('open', isOpen);
-        toggleBtn.setAttribute('aria-expanded', String(isOpen));
-      });
-    }
-
-    const tabButtons = document.querySelectorAll('.tab-btn');
-    const tabPanels = document.querySelectorAll('.tab-panel');
-
-    tabButtons.forEach(button => {
-      button.addEventListener('click', () => {
-        tabButtons.forEach(item => item.classList.remove('active'));
-        tabPanels.forEach(panel => panel.classList.remove('active'));
-
-        button.classList.add('active');
-
-        const panel = document.getElementById(
-          `tab-${button.dataset.tab}`
-        );
-
-        if (panel) {
-          panel.classList.add('active');
-        }
-      });
-    });
-
-    const input = document.getElementById('alg-input');
-    input?.addEventListener('input', resizeAlgorithmInput);
-    window.addEventListener('resize', resizeAlgorithmInput);
-    resizeAlgorithmInput();
-
     document
       .getElementById('copyMovesBtn')
       ?.addEventListener('click', copyMoveHistory);
@@ -509,6 +454,10 @@ function recordExecutedMove(token, kind = 'solving') {
   window.getTurnParameters = getTurnParameters;
 
   window.queueMove = queueMove;
+  window.enqueueCubeMoves = enqueueMoves;
+  window.getPendingMoveCount = () => window.moveQueue.length - queueHead;
+  window.invertMove = invertMove;
+  window.MOVE_TOKEN = MOVE_TOKEN;
   window.applyAlgorithm = applyAlgorithm;
   window.scrambleCube = scrambleCube;
 
@@ -518,6 +467,7 @@ function recordExecutedMove(token, kind = 'solving') {
 
   window.resetCube = function () {
     clearMoveQueue();
+    document.dispatchEvent(new CustomEvent('cube:reset'));
 
     if (typeof window.rebuildCube === 'function') {
       window.rebuildCube();

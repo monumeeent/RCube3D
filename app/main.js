@@ -75,7 +75,7 @@
 
     try {
       window.RubiksCube.executeMove(token, window.getTurnParameters);
-      window.recordExecutedMove(token, kind);
+      window.recordExecutedMove(token, kind, queuedMove.tag || null);
     } catch (error) {
       console.error('Move failed:', error);
       window.clearMoveQueue();
@@ -84,13 +84,52 @@
     }
   }
 
-  function animate() {
+  const CAMERA_VIEWS = {
+    reset: [0, 3.7, 4.5],
+    iso: [3.3, 3.2, 3.5],
+    top: [0, 6, 0.3],
+    front: [0, 0.3, 5.8]
+  };
+  let cameraTween = null;
+
+  function setCameraView(name) {
+    const target = CAMERA_VIEWS[name];
+    if (!target || !camera || !controls) return;
+    const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    const end = new THREE.Vector3(...target);
+    if (reduce) {
+      camera.position.copy(end);
+      controls.target.set(0, 0, 0);
+      controls.update();
+      return;
+    }
+    cameraTween = {
+      start: camera.position.clone(),
+      end,
+      t0: performance.now(),
+      duration: 650
+    };
+  }
+
+  function stepCameraTween(now) {
+    if (!cameraTween) return;
+    const p = Math.min((now - cameraTween.t0) / cameraTween.duration, 1);
+    const eased = 1 - Math.pow(1 - p, 3);
+    camera.position.lerpVectors(cameraTween.start, cameraTween.end, eased);
+    controls.target.lerp(new THREE.Vector3(0, 0, 0), eased);
+    if (p >= 1) cameraTween = null;
+  }
+
+  window.setCameraView = setCameraView;
+
+  function animate(now) {
     requestAnimationFrame(animate);
 
     if (!initialized || !renderer || !scene || !camera || !controls) {
       return;
     }
 
+    stepCameraTween(now || performance.now());
     controls.update();
     processQueue();
     renderer.render(scene, camera);
@@ -113,7 +152,7 @@
     scene = new THREE.Scene();
 
     camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
-    camera.position.set(0, 5, 6);
+    camera.position.set(0, 3.7, 4.5);
 
     renderer = new THREE.WebGLRenderer({
       antialias: true,
@@ -127,6 +166,7 @@
     controls.dampingFactor = 0.05;
     controls.target.set(0, 0, 0);
     controls.update();
+    controls.addEventListener('start', () => { cameraTween = null; });
 
     window.configureCubeControls(THREE, camera);
 

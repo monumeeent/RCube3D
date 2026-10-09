@@ -2,213 +2,257 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Custom Three.js 3D Rubik's Cube</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>RCube3D | Interactive Rubik's Cube</title>
+  <meta name="description" content="RCube3D is a WebGL Rubik's Cube with keyboard controls, an algorithm library, a step-through move queue and a speedcubing timer.">
+  <meta name="theme-color" content="#101216">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 34 34'%3E%3Crect x='1' y='1' width='15' height='15' rx='3' fill='%23ffd500'/%3E%3Crect x='18' y='1' width='15' height='15' rx='3' fill='%23b90000'/%3E%3Crect x='1' y='18' width='15' height='15' rx='3' fill='%230045ad'/%3E%3Crect x='18' y='18' width='15' height='15' rx='3' fill='%23ff5900'/%3E%3C/svg%3E">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 </head>
 <body>
-  <header class="site-nav">
-    <a href="#" class="brand-title">
-      <svg class="brand-mark" viewBox="0 0 34 34" aria-hidden="true">
-        <rect x="1" y="1" width="15" height="15" rx="2" class="mark-u"></rect>
-        <rect x="18" y="1" width="15" height="15" rx="2" class="mark-r"></rect>
-        <rect x="1" y="18" width="15" height="15" rx="2" class="mark-f"></rect>
-        <rect x="18" y="18" width="15" height="15" rx="2" class="mark-l"></rect>
-      </svg>
-      <span class="brand-wordmark">Cube Console</span>
-    </a>
-  </header>
+  <!-- Icon sprite: one stroke family, 1.9 stroke width everywhere -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <defs>
+      <symbol id="i-shuffle" viewBox="0 0 24 24"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></symbol>
+      <symbol id="i-undo" viewBox="0 0 24 24"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></symbol>
+      <symbol id="i-reset" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></symbol>
+      <symbol id="i-play" viewBox="0 0 24 24"><polygon points="6 3 20 12 6 21 6 3"/></symbol>
+      <symbol id="i-pause" viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></symbol>
+      <symbol id="i-step-back" viewBox="0 0 24 24"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" y1="19" x2="5" y2="5"/></symbol>
+      <symbol id="i-step-fwd" viewBox="0 0 24 24"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/></symbol>
+      <symbol id="i-to-start" viewBox="0 0 24 24"><polyline points="11 17 6 12 11 7"/><polyline points="18 17 13 12 18 7"/></symbol>
+      <symbol id="i-to-end" viewBox="0 0 24 24"><polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/></symbol>
+      <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></symbol>
+      <symbol id="i-repeat" viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></symbol>
+      <symbol id="i-chev-d" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></symbol>
+      <symbol id="i-chev-r" viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></symbol>
+      <symbol id="i-x" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></symbol>
+      <symbol id="i-plus" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></symbol>
+      <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></symbol>
+      <symbol id="i-iso" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></symbol>
+      <symbol id="i-top" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="12" y1="4" x2="12" y2="20"/></symbol>
+      <symbol id="i-front" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><circle cx="12" cy="12" r="2"/></symbol>
+      <symbol id="i-fit" viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></symbol>
+      <symbol id="i-instagram" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></symbol>
+      <symbol id="i-github" viewBox="0 0 24 24"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></symbol>
+    </defs>
+  </svg>
 
-  <main class="main-layout">
-  <div id="canvas-container"></div>
+  <a class="skip-link" href="#panel">Skip to controls</a>
 
-  <!-- Bottom-Left Control Group (Control Bar Stacked Above Algorithm Dock) -->
-  <div class="bottom-left-dock">
-    <!-- Move Drawer Popover -->
-    <div class="move-drawer" id="moveDrawer">
-      <div class="drawer-tabs">
-        <button type="button" class="tab-btn active" data-tab="outer">Outer</button>
-        <button type="button" class="tab-btn" data-tab="slice">Slice</button>
-        <button type="button" class="tab-btn" data-tab="wide">Wide</button>
-        <button type="button" class="tab-btn" data-tab="rotation">Rotation</button>
-      </div>
+  <div class="app main-layout">
+    <!-- ================= STAGE (hero canvas) ================= -->
+    <section class="stage" aria-label="3D cube viewer">
+      <div id="canvas-container"></div>
 
-      <div class="drawer-content">
-        <div class="tab-panel active" id="tab-outer">
-          <div class="grid-controls grid-6col">
-            <button type="button" data-face="R" onclick="queueMove('R')">R</button>
-            <button type="button" data-face="L" onclick="queueMove('L')">L</button>
-            <button type="button" data-face="U" onclick="queueMove('U')">U</button>
-            <button type="button" data-face="D" onclick="queueMove('D')">D</button>
-            <button type="button" data-face="F" onclick="queueMove('F')">F</button>
-            <button type="button" data-face="B" onclick="queueMove('B')">B</button>
-            <button type="button" data-face="R" onclick="queueMove(&quot;R'&quot;)">R'</button>
-            <button type="button" data-face="L" onclick="queueMove(&quot;L'&quot;)">L'</button>
-            <button type="button" data-face="U" onclick="queueMove(&quot;U'&quot;)">U'</button>
-            <button type="button" data-face="D" onclick="queueMove(&quot;D'&quot;)">D'</button>
-            <button type="button" data-face="F" onclick="queueMove(&quot;F'&quot;)">F'</button>
-            <button type="button" data-face="B" onclick="queueMove(&quot;B'&quot;)">B'</button>
-            <button type="button" data-face="R" onclick="queueMove('R2')">R2</button>
-            <button type="button" data-face="L" onclick="queueMove('L2')">L2</button>
-            <button type="button" data-face="U" onclick="queueMove('U2')">U2</button>
-            <button type="button" data-face="D" onclick="queueMove('D2')">D2</button>
-            <button type="button" data-face="F" onclick="queueMove('F2')">F2</button>
-            <button type="button" data-face="B" onclick="queueMove('B2')">B2</button>
-          </div>
-        </div>
-
-        <div class="tab-panel" id="tab-slice">
-          <div class="grid-controls grid-3col">
-            <button type="button" data-axis="rl" onclick="queueMove('M')">M</button>
-            <button type="button" data-axis="ud" onclick="queueMove('E')">E</button>
-            <button type="button" data-axis="fb" onclick="queueMove('S')">S</button>
-            <button type="button" data-axis="rl" onclick="queueMove(&quot;M'&quot;)">M'</button>
-            <button type="button" data-axis="ud" onclick="queueMove(&quot;E'&quot;)">E'</button>
-            <button type="button" data-axis="fb" onclick="queueMove(&quot;S'&quot;)">S'</button>
-            <button type="button" data-axis="rl" onclick="queueMove('M2')">M2</button>
-            <button type="button" data-axis="ud" onclick="queueMove('E2')">E2</button>
-            <button type="button" data-axis="fb" onclick="queueMove('S2')">S2</button>
-          </div>
-        </div>
-
-        <div class="tab-panel" id="tab-wide">
-          <div class="grid-controls grid-6col">
-            <button type="button" data-face="R" data-wide="true" onclick="queueMove('r')">r</button>
-            <button type="button" data-face="L" data-wide="true" onclick="queueMove('l')">l</button>
-            <button type="button" data-face="U" data-wide="true" onclick="queueMove('u')">u</button>
-            <button type="button" data-face="D" data-wide="true" onclick="queueMove('d')">d</button>
-            <button type="button" data-face="F" data-wide="true" onclick="queueMove('f')">f</button>
-            <button type="button" data-face="B" data-wide="true" onclick="queueMove('b')">b</button>
-            <button type="button" data-face="R" data-wide="true" onclick="queueMove(&quot;r'&quot;)">r'</button>
-            <button type="button" data-face="L" data-wide="true" onclick="queueMove(&quot;l'&quot;)">l'</button>
-            <button type="button" data-face="U" data-wide="true" onclick="queueMove(&quot;u'&quot;)">u'</button>
-            <button type="button" data-face="D" data-wide="true" onclick="queueMove(&quot;d'&quot;)">d'</button>
-            <button type="button" data-face="F" data-wide="true" onclick="queueMove(&quot;f'&quot;)">f'</button>
-            <button type="button" data-face="B" data-wide="true" onclick="queueMove(&quot;b'&quot;)">b'</button>
-            <button type="button" data-face="R" data-wide="true" onclick="queueMove('r2')">r2</button>
-            <button type="button" data-face="L" data-wide="true" onclick="queueMove('l2')">l2</button>
-            <button type="button" data-face="U" data-wide="true" onclick="queueMove('u2')">u2</button>
-            <button type="button" data-face="D" data-wide="true" onclick="queueMove('d2')">d2</button>
-            <button type="button" data-face="F" data-wide="true" onclick="queueMove('f2')">f2</button>
-            <button type="button" data-face="B" data-wide="true" onclick="queueMove('b2')">b2</button>
-          </div>
-        </div>
-
-        <div class="tab-panel" id="tab-rotation">
-          <div class="grid-controls grid-3col">
-            <button type="button" data-face="R" data-rotation="true" onclick="queueMove('x')">x</button>
-            <button type="button" data-face="U" data-rotation="true" onclick="queueMove('y')">y</button>
-            <button type="button" data-face="F" data-rotation="true" onclick="queueMove('z')">z</button>
-            <button type="button" data-face="R" data-rotation="true" onclick="queueMove(&quot;x'&quot;)">x'</button>
-            <button type="button" data-face="U" data-rotation="true" onclick="queueMove(&quot;y'&quot;)">y'</button>
-            <button type="button" data-face="F" data-rotation="true" onclick="queueMove(&quot;z'&quot;)">z'</button>
-            <button type="button" data-face="R" data-rotation="true" onclick="queueMove('x2')">x2</button>
-            <button type="button" data-face="U" data-rotation="true" onclick="queueMove('y2')">y2</button>
-            <button type="button" data-face="F" data-rotation="true" onclick="queueMove('z2')">z2</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Scramble / Reset Control Bar -->
-    <div class="single-control-bar">
-      <div class="bar-section actions-section">
-        <button type="button" class="btn-action-sm" onclick="scrambleCube()">
-          <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="16 3 21 3 21 8"></polyline>
-            <line x1="4" y1="20" x2="21" y2="3"></line>
-            <polyline points="21 16 21 21 16 21"></polyline>
-            <line x1="15" y1="15" x2="21" y2="21"></line>
-            <line x1="4" y1="4" x2="9" y2="9"></line>
+      <header class="stage-top">
+        <a href="#" class="brand" aria-label="RCube3D home">
+          <svg class="brand-mark" viewBox="0 0 34 34" aria-hidden="true">
+            <rect x="1" y="1" width="15" height="15" rx="3" class="mark-u"></rect>
+            <rect x="18" y="1" width="15" height="15" rx="3" class="mark-r"></rect>
+            <rect x="1" y="18" width="15" height="15" rx="3" class="mark-f"></rect>
+            <rect x="18" y="18" width="15" height="15" rx="3" class="mark-l"></rect>
           </svg>
-          <span>Scramble</span>
+          <span class="brand-word">RCube<b>3D</b></span>
+        </a>
+      </header>
+
+      <!-- Compact timer readout, mirrors the timer card -->
+      <div class="hud" id="hud" data-state="idle" aria-hidden="true">
+        <span class="hud-time" id="hudTime">0.00</span>
+        <span class="hud-sep"></span>
+        <span class="hud-tps"><b id="hudTps">0.0</b> tps</span>
+      </div>
+
+      <!-- Floating camera presets -->
+      <div class="cam" role="toolbar" aria-label="Camera presets">
+        <button type="button" class="cam-btn" data-view="iso" aria-label="Isometric view" data-tip="Iso">
+          <svg class="ic"><use href="#i-iso"/></svg><kbd>1</kbd>
         </button>
-
-        <span class="slash" aria-hidden="true">|</span>
-
-        <button type="button" class="btn-reset-sm" onclick="resetCube()">
-          <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M23 4v6h-6"></path>
-            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
-          </svg>
-          <span>Reset</span>
+        <button type="button" class="cam-btn" data-view="top" aria-label="Top view" data-tip="Top">
+          <svg class="ic"><use href="#i-top"/></svg><kbd>2</kbd>
+        </button>
+        <button type="button" class="cam-btn" data-view="front" aria-label="Front view" data-tip="Front">
+          <svg class="ic"><use href="#i-front"/></svg><kbd>3</kbd>
+        </button>
+        <button type="button" class="cam-btn" data-view="reset" aria-label="Reset view" data-tip="Reset view">
+          <svg class="ic"><use href="#i-fit"/></svg><kbd>4</kbd>
         </button>
       </div>
 
-      <div class="divider" aria-hidden="true"></div>
-
-      <button type="button" class="move-bar-toggle" id="toggleDrawerBtn" title="Toggle Move Pad" aria-label="Toggle move pad" aria-expanded="false" aria-controls="moveDrawer">
-        <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="18 15 12 9 6 15"></polyline>
-        </svg>
+      <button type="button" class="panel-toggle" id="panelToggle" aria-expanded="true" aria-controls="panel" aria-label="Collapse sidebar" title="Hide controls ( \ )">
+        <svg class="ic"><use href="#i-chev-r"/></svg>
       </button>
-    </div>
 
-    <!-- Algorithm Input Dock -->
-    <div class="algorithm-dock">
-      <div class="bar-section input-section">
-        <div class="input-wrapper">
-          <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="4 17 10 11 4 5"></polyline>
-            <line x1="12" y1="19" x2="20" y2="19"></line>
-          </svg>
-          <input type="text" id="alg-input" placeholder="Type alg..." aria-label="Cube algorithm">
+      <p id="app-status" role="status" aria-live="polite">Loading cube...</p>
+
+      <!-- Floating quick actions (desktop: pill, mobile: speed dial) -->
+      <div class="quick" id="quick">
+        <div class="quick-actions" id="quickActions">
+          <button type="button" class="q-btn" id="qScramble" style="--i:3">
+            <svg class="ic"><use href="#i-shuffle"/></svg><span>Scramble</span>
+          </button>
+          <button type="button" class="q-btn" id="qUndo" style="--i:2">
+            <svg class="ic"><use href="#i-undo"/></svg><span>Undo</span><kbd>Ctrl Z</kbd>
+          </button>
+          <button type="button" class="q-btn" id="qPlay" style="--i:1">
+            <svg class="ic"><use href="#i-play"/></svg><span>Play</span>
+          </button>
+          <button type="button" class="q-btn q-danger" id="qReset" style="--i:0">
+            <svg class="ic"><use href="#i-reset"/></svg><span>Reset</span>
+          </button>
         </div>
-        <button type="button" class="btn-apply" onclick="applyAlgorithm()">
-          <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polygon points="5 3 19 12 5 21 5 3"></polygon>
-          </svg>
-          <span>Apply</span>
+        <button type="button" class="q-fab" id="qFab" aria-expanded="false" aria-controls="quickActions" aria-label="Quick actions">
+          <svg class="ic"><use href="#i-plus"/></svg>
         </button>
       </div>
-    </div>
-  </div>
+    </section>
 
-  <!-- Bottom-Right Solving Moves Bar -->
-  <div class="solving-moves-bar">
-    <div class="solving-moves-label">
-      <span>Solving Move :</span>
-      <div id="solvingMovesDisplay" class="moves-text">--</div>
-    </div>
-    <button type="button" class="btn-copy-moves" id="copyMovesBtn">
-      Copy
-    </button>
+    <!-- ================= CONTROL PANEL ================= -->
+    <aside class="panel" id="panel" aria-label="Cube controls">
+
+      <!-- Timer -->
+      <section class="module timer" id="timer" data-state="idle" aria-labelledby="h-timer">
+        <header class="module-head">
+          <h2 id="h-timer">Timer</h2>
+          <span class="state-pill" id="timerState">Ready</span>
+        </header>
+        <div class="readout">
+          <output class="readout-time" id="timerTime" aria-live="off">0.00</output>
+          <div class="inspect-bar" aria-hidden="true"><i id="inspectFill"></i></div>
+        </div>
+        <div class="stats">
+          <div class="stat"><span class="stat-k">Moves</span><b class="stat-v" id="statMoves">0</b></div>
+          <div class="stat"><span class="stat-k">TPS</span><b class="stat-v" id="statTps">0.0</b></div>
+          <div class="stat"><span class="stat-k">Best</span><b class="stat-v" id="statBest">-</b></div>
+          <div class="stat"><span class="stat-k">Last</span><b class="stat-v" id="statLast">-</b></div>
+        </div>
+        <div class="row">
+          <button type="button" class="btn btn-primary" id="timerMain">
+            <svg class="ic"><use href="#i-clock"/></svg><span id="timerMainLabel">Start inspection</span><kbd>Space</kbd>
+          </button>
+          <button type="button" class="btn" id="timerReset">Clear</button>
+        </div>
+        <p class="hint" id="timerHint">Inspect for 15 seconds, then your first turn starts the clock. It stops when the cube is solved.</p>
+      </section>
+
+      <!-- Move queue and scrub -->
+      <section class="module" id="queue" aria-labelledby="h-queue">
+        <header class="module-head">
+          <h2 id="h-queue">Move queue</h2>
+          <span class="meta" id="seqMeta">Empty</span>
+          <div class="head-tools">
+            <button type="button" class="icon-btn" id="seqInvert" aria-label="Invert sequence" title="Invert sequence"><svg class="ic"><use href="#i-repeat"/></svg></button>
+            <button type="button" class="icon-btn" id="seqClear" aria-label="Clear sequence" title="Clear sequence"><svg class="ic"><use href="#i-x"/></svg></button>
+          </div>
+        </header>
+
+        <div class="track" id="seqTrack" role="list" tabindex="0" aria-label="Algorithm steps"></div>
+
+        <input class="scrub" id="scrub" type="range" min="0" max="0" value="0" step="1" aria-label="Scrub through sequence" disabled>
+
+        <div class="transport">
+          <button type="button" class="t-btn" id="tStart" aria-label="Rewind to start"><svg class="ic"><use href="#i-to-start"/></svg></button>
+          <button type="button" class="t-btn" id="tBack" aria-label="Step back"><svg class="ic"><use href="#i-step-back"/></svg></button>
+          <button type="button" class="t-btn t-play" id="tPlay" aria-label="Play"><svg class="ic"><use href="#i-play"/></svg></button>
+          <button type="button" class="t-btn" id="tFwd" aria-label="Step forward"><svg class="ic"><use href="#i-step-fwd"/></svg></button>
+          <button type="button" class="t-btn" id="tEnd" aria-label="Skip to end"><svg class="ic"><use href="#i-to-end"/></svg></button>
+          <div class="seg speed" id="speed" role="group" aria-label="Playback speed">
+            <button type="button" data-speed="0.5">0.5x</button>
+            <button type="button" data-speed="1" class="on">1x</button>
+            <button type="button" data-speed="2">2x</button>
+            <button type="button" data-speed="4">4x</button>
+          </div>
+        </div>
+
+        <form class="alg-form" id="algForm" novalidate>
+          <label for="alg-input">Run your own algorithm</label>
+          <div class="alg-row">
+            <input type="text" id="alg-input" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="R U R' U' F2 M x" aria-describedby="algError">
+            <button type="submit" class="btn btn-primary btn-sm"><svg class="ic"><use href="#i-play"/></svg><span>Run</span></button>
+          </div>
+          <p class="field-error" id="algError" role="alert"></p>
+        </form>
+      </section>
+
+      <!-- Algorithm library -->
+      <section class="module" id="library" aria-labelledby="h-lib">
+        <header class="module-head">
+          <h2 id="h-lib">Algorithm library</h2>
+          <label class="switch" title="Run the algorithm as soon as you pick it">
+            <input type="checkbox" id="autoplay" checked>
+            <span class="switch-ui" aria-hidden="true"></span>
+            <span class="switch-text">Auto-run</span>
+          </label>
+        </header>
+        <div class="chips" id="chips"></div>
+        <p class="alg-peek" id="algPeek" aria-live="polite">Hover a chip to preview its moves.</p>
+      </section>
+
+      <!-- Move pad -->
+      <section class="module" id="pad" aria-labelledby="h-pad">
+        <header class="module-head">
+          <h2 id="h-pad">Move pad</h2>
+          <div class="seg mod" id="modSeg" role="group" aria-label="Turn direction">
+            <button type="button" data-mod="" class="on" title="Clockwise">CW</button>
+            <button type="button" data-mod="'" title="Counter-clockwise (hold Shift)">CCW</button>
+            <button type="button" data-mod="2" title="Double turn (hold Alt)">x2</button>
+          </div>
+        </header>
+
+        <div class="tabs drawer-tabs" role="tablist" aria-label="Move categories">
+          <button type="button" role="tab" class="tab on" id="tab-outer" aria-selected="true" aria-controls="pane" data-cat="outer">Outer faces</button>
+          <button type="button" role="tab" class="tab" id="tab-slice" aria-selected="false" aria-controls="pane" data-cat="slice">Slices</button>
+          <button type="button" role="tab" class="tab" id="tab-wide" aria-selected="false" aria-controls="pane" data-cat="wide">Wide</button>
+          <button type="button" role="tab" class="tab" id="tab-rotation" aria-selected="false" aria-controls="pane" data-cat="rotation">Rotations</button>
+        </div>
+        <div class="keys" id="pane" role="tabpanel" aria-labelledby="tab-outer"></div>
+        <p class="hint" id="padHint">Hold <kbd>Shift</kbd> for prime, <kbd>Alt</kbd> for double. Wide moves use <kbd>Ctrl</kbd>.</p>
+      </section>
+
+      <!-- History -->
+      <section class="module" id="history" aria-labelledby="h-hist">
+        <header class="module-head">
+          <h2 id="h-hist">History</h2>
+          <button type="button" class="btn btn-sm" id="copyMovesBtn"><svg class="ic"><use href="#i-copy"/></svg><span>Copy</span></button>
+        </header>
+        <div class="hist-grid">
+          <div class="hist-block"><span class="hist-k">Queued</span><div id="solvingQueueList" class="history-tags"></div></div>
+          <div class="hist-block"><span class="hist-k">Recent</span><div id="recentMovesList" class="history-tags"></div></div>
+          <div class="hist-block"><span class="hist-k">Scramble queue</span><div id="scrambleQueueList" class="history-tags"></div></div>
+          <div class="hist-block"><span class="hist-k">Scramble history</span><div id="scrambleMovesList" class="history-tags"></div></div>
+        </div>
+      </section>
+
+      <footer class="credits">
+        <div class="credit-line">
+          <span class="credit-k">Dev</span>
+          <span class="credit-name">Montasir</span>
+        </div>
+        <div class="credit-links">
+          <a class="social" href="https://www.instagram.com/monumeeent" target="_blank" rel="noopener noreferrer" aria-label="Instagram: @monumeeent">
+            <svg class="ic"><use href="#i-instagram"/></svg><span>@monumeeent</span>
+          </a>
+          <a class="social" href="https://github.com/monumeeent" target="_blank" rel="noopener noreferrer" aria-label="GitHub: @monumeeent">
+            <svg class="ic"><use href="#i-github"/></svg><span>@monumeeent</span>
+          </a>
+        </div>
+      </footer>
+    </aside>
   </div>
-  <!-- Add inside <main class="main-layout"> in index_2.html -->
-<div class="move-history-panel">
-  <div class="move-history-heading">
-    <span class="history-label">Move history</span>
-  </div>
-  <div class="move-panel-section">
-    <span class="move-panel-label">Solving queue</span>
-    <div id="solvingQueueList" class="history-tags"></div>
-  </div>
-  <div class="move-panel-section">
-    <span class="move-panel-label">Recent moves</span>
-    <div id="recentMovesList" class="history-tags"></div>
-  </div>
-  <div class="move-panel-section">
-    <span class="move-panel-label">Scramble queue</span>
-    <div id="scrambleQueueList" class="history-tags"></div>
-  </div>
-  <div class="move-panel-section">
-    <span class="move-panel-label">Scramble history</span>
-    <div id="scrambleMovesList" class="history-tags"></div>
-  </div>
-</div>
-  
-</main>
 
   <script src="cube.js"></script>
   <script src="controls.js"></script>
   <script src="hotkeys.js"></script>
   <script src="drag.js"></script>
   <script src="main.js"></script>
+  <script src="ui.js"></script>
 </body>
 </html>

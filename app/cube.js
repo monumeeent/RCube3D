@@ -14,7 +14,7 @@
   const CUBE_SIZE = 0.45;
   const GAP = 0.05;
   const STEP = CUBE_SIZE + GAP;
-  const TURN_DURATION_MS = 200;
+  let turnDurationMs = 200;
 
   let THREE = null;
   let scene = null;
@@ -116,7 +116,7 @@
     function animateTurn(now) {
       if (generation !== cubeGeneration) return;
 
-      const progress = Math.min((now - startTime) / TURN_DURATION_MS, 1);
+      const progress = Math.min((now - startTime) / turnDurationMs, 1);
 
       const easedProgress =
         progress < 0.5
@@ -167,8 +167,46 @@
     buildCube();
   }
 
+  function setTurnDuration(ms) {
+    turnDurationMs = Math.max(20, Math.min(1000, Number(ms) || 200));
+  }
+
+  // Orientation-independent solved check: every world direction must show
+  // a single sticker color across its nine facelets.
+  function isSolved() {
+    if (!THREE || !cubies.length) return false;
+    const dirs = [
+      new THREE.Vector3(1, 0, 0), new THREE.Vector3(-1, 0, 0),
+      new THREE.Vector3(0, 1, 0), new THREE.Vector3(0, -1, 0),
+      new THREE.Vector3(0, 0, 1), new THREE.Vector3(0, 0, -1)
+    ];
+    const locals = dirs;
+    const pos = new THREE.Vector3();
+    const quat = new THREE.Quaternion();
+    const n = new THREE.Vector3();
+    const seen = dirs.map(() => new Set());
+
+    for (const cubie of cubies) {
+      cubie.getWorldPosition(pos);
+      cubie.getWorldQuaternion(quat);
+      dirs.forEach((dir, d) => {
+        if (Math.abs(pos.dot(dir) - STEP) > 0.1) return;
+        for (let i = 0; i < 6; i++) {
+          n.copy(locals[i]).applyQuaternion(quat);
+          if (n.dot(dir) > 0.9) {
+            seen[d].add(cubie.material[i].color.getHex());
+            break;
+          }
+        }
+      });
+    }
+    return seen.every(set => set.size === 1);
+  }
+
   window.RubiksCube = {
     STEP,
+    setTurnDuration,
+    isSolved,
     init,
     executeMove,
     rebuildCube,

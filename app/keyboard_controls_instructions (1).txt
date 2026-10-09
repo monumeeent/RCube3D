@@ -37,3 +37,10 @@
 * Alt                 : Double Turn (2)
 * Ctrl + Shift        : Wide Prime Move (r', f', u', d', l', b')
 * Ctrl + Alt          : Wide Double Turn (r2, f2, u2, d2, l2, b2)
+------------------------------------------------------------------------
+4. NEW UI SHORTCUTS
+------------------------------------------------------------------------
+
+* Space     : Start inspection / start solve / stop timer
+* 1 / 2 / 3 / 4 : Camera Iso / Top / Front / Reset view
+* Esc       : Close the mobile quick-action menu
