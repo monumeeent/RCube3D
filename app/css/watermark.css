@@ -80,7 +80,7 @@
   transform: translate(-50%, -50%) scaleY(0);
   width: 100%;
   color: #000000;
-  background: var(--accent, transparent);
+  background: var(--accent, #ffd500);
   font-size: 0.45em;
   font-weight: 800;
   letter-spacing: 0.3em;

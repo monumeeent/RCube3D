@@ -85,7 +85,7 @@
     MONUMEEENT
     <span>MONUMEEENT</span>
     <span>MONUMEEENT</span>
-    <span>MONTASIR</span>
+    <span></span>
 	</h1>`;
 	rail.appendChild(watermarkWrap);
 	
