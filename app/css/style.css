@@ -1,10 +1,20 @@
 /* ============================================================
-   RCube3D design tokens
-   Sticker colors come straight from COLORS in cube.js, so every
-   accent in the chrome traces back to the puzzle. One brand
-   accent (U yellow) drives primary actions; the other faces only
-   label moves. Radius scale: 16 containers / 10 controls / 7 keys.
+   filename: style.css
+   ============================================================
+   Styled Elements / IDs / Classes Summary:
+   - Root & Reset: *, *::before, *::after, :root, html, body, button, input, kbd, .ic, :focus-visible, .skip-link
+   - App Layout & 3D Stage: .app, .panel-collapsed, .stage, #canvas-container, canvas, .stage-top, .brand, .brand-mark, .mark-u, .mark-r, .mark-f, .mark-l, .panel-toggle, #app-status
+   - HUD & Camera Controls: .hud, .hud-time, .hud-sep, .hud-tps, .cam, .cam-btn
+   - Quick Action Bar: .quick, .quick-actions, .q-btn, .q-danger, .q-fab
+   - Right Control Panel & Modules: .panel, .module, .module-head, .module-body, .module-inner, .module-pad, .collapse-btn, .head-tools, .hint
+   - Buttons, Form Inputs & Controls: .btn, .btn-sm, .btn-primary, .row, .icon-btn, .seg, .switch, .switch-ui, .chips, .chip, .alg-peek
+   - Timer Component: .state-pill, .readout, .readout-time, .inspect-bar, .stats, .stat, .stat-k, .stat-v
+   - Move Queue & Scrubber: .track, .track-empty, .step, .scrub, .transport, .t-btn, .t-play, .alg-form, .alg-row, input, .field-error
+   - Keycaps / Interactive Move Pad: .tabs, .tab, .keys, .key, .bind
+   - History & Credits Section: .hist-grid, .hist-block, .hist-k, .history-tags, .history-tag, .history-empty, .credits, .credit-line, .credit-k, .credit-name, .credit-links, .social
+   - Media Queries: @media (max-width: 1180px), @media (max-width: 860px), @media (max-width: 400px), @media (max-height: 640px), @media (prefers-reduced-motion)
    ============================================================ */
+
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {

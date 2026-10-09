@@ -11,8 +11,12 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+<!-- Stylesheets -->
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/style2.css">
+  <link rel="stylesheet" href="css/watermark.css">
 
+  <!-- External Dependencies -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 </head>
@@ -248,11 +252,17 @@
     </aside>
   </div>
 
-  <script src="cube.js"></script>
-  <script src="controls.js"></script>
-  <script src="hotkeys.js"></script>
-  <script src="drag.js"></script>
-  <script src="main.js"></script>
-  <script src="ui.js"></script>
+<!-- Core 3D & Control Scripts -->
+  <script src="js/cube.js"></script>
+  <script src="js/controls.js"></script>
+  <script src="js/hotkeys.js"></script>
+  <script src="js/drag.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/ui.js"></script>
+
+  <!-- CFOP Drawer Modules (Must load in this order) -->
+  <script src="cfop/cfop-data.js"></script>
+  <script src="cfop/svg-renderer.js"></script>
+  <script src="cfop/cfop-drawer.js"></script>
 </body>
 </html>

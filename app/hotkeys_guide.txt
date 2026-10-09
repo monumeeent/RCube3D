@@ -44,3 +44,4 @@
 * Space     : Start inspection / start solve / stop timer
 * 1 / 2 / 3 / 4 : Camera Iso / Top / Front / Reset view
 * Esc       : Close the mobile quick-action menu
+* \ (backslash) : Hide or show the sidebar
