@@ -1,0 +1,46 @@
+========================================================================
+                       RCUBE3D OPERATIONAL GUIDE
+========================================================================
+
+1. PREREQUISITES & LAUNCH
+------------------------------------------------------------------------
+- Requires a WebGL-compatible modern web browser (Chrome, Firefox, Edge, Safari).
+- Serve the root directory or `/app` directory using any HTTP server:
+    Example: `npx serve app` or VS Code Live Server.
+- Open `index.html` in your browser[cite: 2].
+
+------------------------------------------------------------------------
+2. CONTROLS & SHORTCUTS
+------------------------------------------------------------------------
+- Orbit View      : Click and drag with left mouse button on the 3D stage area.
+- Face Moves      :
+    - R: Right face | Shift+R: R' | Ctrl+R: r (wide) | Alt+R: R2
+    - F: Front face | Shift+F: F' | Ctrl+F: f (wide) | Alt+F: F2
+    - U: Up face    | Shift+U: U' | Ctrl+U: u (wide) | Alt+U: U2
+    - D: Down face  | Shift+D: D' | Ctrl+D: d (wide) | Alt+D: D2
+    - J: Left face  | Shift+J: L' | Ctrl+J: l (wide) | Alt+J: L2
+    - H: Back face  | Shift+H: B' | Ctrl+H: b (wide) | Alt+H: B2
+- Slice Moves     : M (Middle), E (Equator), S (Standing)
+- Cube Rotations  : C (x axis), V (y axis), B (z axis)
+- System Hotkeys  :
+    - Spacebar    : Start inspection / Start solve / Stop timer[cite: 3, 8]
+    - Ctrl + Z    : Undo last move[cite: 3, 6]
+    - 1 / 2 / 3 / 4 : Camera views (Iso / Top / Front / Reset)[cite: 3, 8]
+    - \ (Backslash): Toggle right controls panel[cite: 3, 8]
+    - [ (Bracket)  : Toggle left CFOP algorithm drawer[cite: 12]
+
+------------------------------------------------------------------------
+3. CFOP DRAWER & ALGORITHM QUEUE
+------------------------------------------------------------------------
+- Click the "F2L" or "OLL" button on the left rail to open the drawer[cite: 12].
+- Click "Run" (Play icon) on any case card to load and execute the algorithm[cite: 12].
+- Click "Setup" (Undo icon) to apply the inverse algorithm to set up the case[cite: 12].
+- Use the move queue scrubber in the right panel to scrub through steps manually[cite: 8].
+
+------------------------------------------------------------------------
+4. VERIFICATION & TESTING
+------------------------------------------------------------------------
+1. Verify 3D Canvas: Confirm that the 3x3 cube renders on launch and can be rotated with mouse drag[cite: 2, 7].
+2. Verify Hotkeys: Press 'R', 'U', 'F' and confirm that keycaps light up on the Move Pad and turn the cube[cite: 3, 8].
+3. Verify Timer: Press Spacebar to enter inspection, press Spacebar again to start solving, and complete a solve to verify time recording[cite: 3, 8].
+4. Verify CFOP Drawer: Press '[' to open the drawer, click 'F2L 1', click 'Run', and verify moves execute in sequence[cite: 8, 11, 12].
