@@ -1,287 +1,12 @@
 /* ============================================================
-   filename: style2.css
-   ============================================================
-   Styled Elements / IDs / Classes Summary:
-   - CFOP Sidebar Overlay Container: .cfop-sidebar
-   - Left Navigation Rail Container: .cfop-rail
-   - Rail Navigation Item Buttons: .cfop-rail-btn, .cfop-rail-btn:hover, .cfop-rail-btn:active, .cfop-rail-btn:focus-visible, .cfop-rail-btn.is-active
-   - Rail Button Typography & Badges: .cfop-rail-label, .cfop-rail-badge
-   - Rail Hover Tooltips: .cfop-rail-btn::after, .cfop-rail-btn:hover::after
-   - Collapsible Algorithm Drawer: .cfop-drawer, .cfop-drawer.is-open
-   - ISO Card SVG Diagram Previews: .cfop-card-diagram
-   - Responsive & Motion Adaptations: @media (max-width: 860px), @media (prefers-reduced-motion: reduce)
+   filename: style2.css (Consolidated & Categorized)
    ============================================================ */
 
-@layer components {
-  /* ── Sidebar Overlay Positioning ────────────────────────────────────── */
-  .cfop-sidebar {
-    position: absolute;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    z-index: 10;
-    display: flex;
-    pointer-events: none; /* Let clicks pass to 3D stage behind blank space */
-  }
-
-  /* Re-enable pointer events for active interactive elements */
-  .cfop-rail, .cfop-drawer {
-    pointer-events: auto;
-  }
-
-  /* ── Rail Container ────────────────────────────────────────────────── */
-  .cfop-rail {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    width: 64px;
-    height: 100%;
-    padding: 20px 8px;
-    background: var(--s1, #0f1117);
-    border-right: 1px solid var(--line, rgba(255, 255, 255, 0.08));
-    overflow-y: auto;
-    scrollbar-width: none;
-    box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.02);
-    user-select: none;
-  }
-  .cfop-rail::-webkit-scrollbar {
-    display: none;
-  }
-
-  /* ── Rail Item Button ──────────────────────────────────────────────── */
-  .cfop-rail-btn {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 4px;
-    width: 48px;
-    height: 52px;
-    padding: 6px;
-    background: var(--s2, #181a20);
-    border: 1px solid var(--line, rgba(255, 255, 255, 0.06));
-    border-radius: 12px;
-    color: var(--dim, #8b92a5);
-    cursor: pointer;
-    outline: none;
-    transition: 
-      background 0.2s cubic-bezier(0.16, 1, 0.3, 1),
-      border-color 0.2s cubic-bezier(0.16, 1, 0.3, 1),
-      color 0.2s cubic-bezier(0.16, 1, 0.3, 1),
-      transform 0.15s cubic-bezier(0.16, 1, 0.3, 1),
-      box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  /* Hover State */
-  .cfop-rail-btn:hover {
-    background: var(--s3, #222630);
-    border-color: rgba(255, 255, 255, 0.15);
-    color: var(--ink, #f0f2f8);
-    transform: translateY(-1px);
-  }
-
-  /* Active Press Feedback */
-  .cfop-rail-btn:active {
-    transform: scale(0.95);
-  }
-
-  /* Focus Visible (A11y) */
-  .cfop-rail-btn:focus-visible {
-    border-color: var(--rail-color, var(--accent, #ffd500));
-    box-shadow: 0 0 0 2px color-mix(in srgb, var(--rail-color, #ffd500) 40%, transparent);
-  }
-
-  /* ── Selected Active Rail Button ───────────────────────────────────── */
-  .cfop-rail-btn.is-active {
-    background: color-mix(in srgb, var(--rail-color, #ffd500) 12%, var(--s3, #222630));
-    border-color: var(--rail-color, var(--accent, #ffd500));
-    color: #ffffff;
-    box-shadow:
-      0 4px 16px -2px color-mix(in srgb, var(--rail-color, #ffd500) 25%, transparent),
-      inset 0 1px 0 rgba(255, 255, 255, 0.2);
-  }
-
-  /* Active Indicator Pip (Left Accent Bar) */
-  .cfop-rail-btn.is-active::before {
-    content: "";
-    position: absolute;
-    left: -8px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 3px;
-    height: 20px;
-    border-radius: 0 4px 4px 0;
-    background: var(--rail-color, var(--accent, #ffd500));
-    box-shadow: 0 0 8px var(--rail-color, var(--accent, #ffd500));
-  }
-
-  /* ── Label & Badge Typography ─────────────────────────────────────── */
-  .cfop-rail-label {
-    font-family: var(--font-mono, ui-monospace, SFMono-Regular, monospace);
-    font-size: 0.72rem;
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    line-height: 1;
-    text-transform: uppercase;
-  }
-
-  .cfop-rail-badge {
-    font-family: var(--font-mono, ui-monospace, SFMono-Regular, monospace);
-    font-size: 0.62rem;
-    font-weight: 500;
-    color: var(--dim, #8b92a5);
-    background: rgba(0, 0, 0, 0.25);
-    padding: 1px 5px;
-    border-radius: 10px;
-    transition: color 0.2s, background 0.2s;
-  }
-
-  .cfop-rail-btn.is-active .cfop-rail-badge {
-    color: #ffffff;
-    background: color-mix(in srgb, var(--rail-color, #ffd500) 30%, transparent);
-  }
-
-  /* ── Tooltip Hover Card ────────────────────────────────────────────── */
-  .cfop-rail-btn::after {
-    content: attr(aria-label);
-    position: absolute;
-    left: calc(100% + 12px);
-    top: 50%;
-    transform: translateY(-50%) translateX(-6px);
-    white-space: nowrap;
-    background: var(--s4, #1e222e);
-    color: var(--ink, #ffffff);
-    border: 1px solid var(--line-strong, rgba(255, 255, 255, 0.15));
-    border-radius: 6px;
-    font-family: var(--font-sans, system-ui, sans-serif);
-    font-size: 0.72rem;
-    font-weight: 500;
-    padding: 5px 10px;
-    pointer-events: none;
-    opacity: 0;
-    z-index: 100;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
-    transition: opacity 0.15s ease, transform 0.15s ease;
-  }
-
-  .cfop-rail-btn:hover::after {
-    opacity: 1;
-    transform: translateY(-50%) translateX(0);
-  }
-
-  /* ── Collapsible Algorithm Drawer ─────────────────────────────────── */
-  .cfop-drawer {
-    width: 0;
-    height: 100%;
-    overflow: hidden;
-    background: var(--s1);
-    border-right: 1px solid transparent;
-    display: flex;
-    flex-direction: column;
-    transition: width 0.35s var(--ease), border-color 0.35s var(--ease);
-  }
-
-  .cfop-drawer.is-open {
-    width: 280px;
-    border-right-color: var(--line);
-    overflow-y: auto;
-  }
-
-  /* ── Diagram Card Component ────────────────────────────────────────── */
-  .cfop-card-diagram {
-    width: 48px;
-    height: 48px;
-    flex-shrink: 0;
-    display: grid;
-    place-items: center;
-    border-radius: 6px;
-    background: var(--s1);
-    border: 1px solid var(--line);
-    padding: 2px;
-  }
-
-  /* ── Mobile Responsive Layout Adjustment (< 860px) ─────────────────── */
-  @media (max-width: 860px) {
-    .cfop-sidebar {
-      width: 100%;
-      height: 56px;
-      top: auto;
-      bottom: 0;
-    }
-
-    .cfop-rail {
-      flex-direction: row;
-      justify-content: flex-start;
-      width: 100%;
-      height: 56px;
-      padding: 8px 12px;
-      border-right: 0;
-      border-top: 1px solid var(--line, rgba(255, 255, 255, 0.08));
-      overflow-x: auto;
-      overflow-y: hidden;
-    }
-
-    .cfop-rail-btn {
-      width: 52px;
-      height: 40px;
-      flex-direction: row;
-      gap: 6px;
-    }
-
-    .cfop-rail-btn.is-active::before {
-      left: 50%;
-      top: auto;
-      bottom: -8px;
-      transform: translateX(-50%);
-      width: 20px;
-      height: 3px;
-      border-radius: 4px 4px 0 0;
-    }
-
-    .cfop-rail-btn::after {
-      display: none; /* Hide tooltips on touch devices */
-    }
-
-    .cfop-drawer {
-      position: fixed;
-      bottom: 56px;
-      left: 0;
-      height: 60vh;
-      border-right: 0;
-      border-top: 1px solid var(--line);
-    }
-
-    .cfop-drawer.is-open {
-      width: 100vw !important;
-    }
-  }
-
-  /* Reduced Motion Safety */
-  @media (prefers-reduced-motion: reduce) {
-    .cfop-rail-btn,
-    .cfop-rail-btn::after,
-    .cfop-drawer {
-      transition: none !important;
-      transform: none !important;
-    }
-  }
-}
-
-/* ── CFOP root wrapper ─────────────────────────────── */
+/* ── 1. Layout & Root Containers ──────────────────────────────────── */
 .cfop-root {
   display: flex;
   height: 100dvh;
   overflow: hidden;
-}
-
-.cfop-sidebar {
-  display: flex;
-  flex-shrink: 0;
-  position: relative;
-  z-index: 20;
 }
 
 .cfop-root .app {
@@ -289,74 +14,175 @@
   min-width: 0;
 }
 
-/* ── Icon Rail ─────────────────────────────────────── */
+.cfop-sidebar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  z-index: 20;
+  display: flex;
+  flex-shrink: 0;
+  pointer-events: none; /* Let clicks pass to 3D stage behind blank space */
+}
+
+/* Re-enable pointer events for active interactive elements */
+.cfop-rail, 
+.cfop-drawer {
+  pointer-events: auto;
+}
+
+
+/* ── 2. Icon Navigation Rail ──────────────────────────────────────── */
 .cfop-rail {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
-  width: 56px;
-  padding: 16px 6px;
-  background: var(--s1);
-  border-right: 1px solid var(--line);
+  gap: 8px;
+  width: 64px;
+  height: 100%;
+  padding: 20px 8px;
+  background: var(--s1, #0f1117);
+  border-right: 1px solid var(--line, rgba(255, 255, 255, 0.08));
   overflow-y: auto;
   scrollbar-width: none;
+  box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.02);
+  user-select: none;
 }
-.cfop-rail::-webkit-scrollbar { display: none; }
+
+.cfop-rail::-webkit-scrollbar {
+  display: none;
+}
 
 .cfop-rail-btn {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 3px;
-  width: 44px;
-  padding: 8px 4px;
-  background: transparent;
-  border: 1px solid transparent;
-  border-radius: var(--r-md);
-  color: var(--dim);
+  justify-content: center;
+  gap: 4px;
+  width: 48px;
+  height: 52px;
+  padding: 6px;
+  background: var(--s2, #181a20);
+  border: 1px solid var(--line, rgba(255, 255, 255, 0.06));
+  border-radius: 12px;
+  color: var(--dim, #8b92a5);
   cursor: pointer;
-  transition: background 0.15s, color 0.15s, border-color 0.15s;
-  position: relative;
+  outline: none;
+  transition: 
+    background 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+    color 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.15s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   -webkit-tap-highlight-color: transparent;
 }
+
 .cfop-rail-btn:hover {
-  background: var(--s3);
-  color: var(--ink);
-}
-.cfop-rail-btn.is-active {
-  background: var(--s3);
-  border-color: var(--rail-color, var(--accent));
-  color: var(--ink);
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--rail-color, var(--accent)) 30%, transparent);
-}
-.cfop-rail-label {
-  font-family: var(--font-mono);
-  font-size: 0.65rem;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  line-height: 1;
-}
-.cfop-rail-badge {
-  font-size: 0.6rem;
-  color: var(--dim);
-  font-family: var(--font-mono);
-  transition: color 0.15s;
-}
-.cfop-rail-btn.is-active .cfop-rail-badge {
-  color: var(--rail-color, var(--accent));
+  background: var(--s3, #222630);
+  border-color: rgba(255, 255, 255, 0.15);
+  color: var(--ink, #f0f2f8);
+  transform: translateY(-1px);
 }
 
-/* ── Drawer panel ──────────────────────────────────── */
+.cfop-rail-btn:active {
+  transform: scale(0.95);
+}
+
+.cfop-rail-btn:focus-visible {
+  border-color: var(--rail-color, var(--accent, #ffd500));
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--rail-color, #ffd500) 40%, transparent);
+}
+
+.cfop-rail-btn.is-active {
+  background: color-mix(in srgb, var(--rail-color, #ffd500) 12%, var(--s3, #222630));
+  border-color: var(--rail-color, var(--accent, #ffd500));
+  color: #ffffff;
+  box-shadow:
+    0 4px 16px -2px color-mix(in srgb, var(--rail-color, #ffd500) 25%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+/* Active Indicator Pip (Left Accent Bar) */
+.cfop-rail-btn.is-active::before {
+  content: "";
+  position: absolute;
+  left: -8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 20px;
+  border-radius: 0 4px 4px 0;
+  background: var(--rail-color, var(--accent, #ffd500));
+  box-shadow: 0 0 8px var(--rail-color, var(--accent, #ffd500));
+}
+
+.cfop-rail-label {
+  font-family: var(--font-mono, ui-monospace, SFMono-Regular, monospace);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.cfop-rail-badge {
+  font-family: var(--font-mono, ui-monospace, SFMono-Regular, monospace);
+  font-size: 0.62rem;
+  font-weight: 500;
+  color: var(--dim, #8b92a5);
+  background: rgba(0, 0, 0, 0.25);
+  padding: 1px 5px;
+  border-radius: 10px;
+  transition: color 0.2s, background 0.2s;
+}
+
+.cfop-rail-btn.is-active .cfop-rail-badge {
+  color: #ffffff;
+  background: color-mix(in srgb, var(--rail-color, #ffd500) 30%, transparent);
+}
+
+/* Tooltip Hover Card */
+.cfop-rail-btn::after {
+  content: attr(aria-label);
+  position: absolute;
+  left: calc(100% + 12px);
+  top: 50%;
+  transform: translateY(-50%) translateX(-6px);
+  white-space: nowrap;
+  background: var(--s4, #1e222e);
+  color: var(--ink, #ffffff);
+  border: 1px solid var(--line-strong, rgba(255, 255, 255, 0.15));
+  border-radius: 6px;
+  font-family: var(--font-sans, system-ui, sans-serif);
+  font-size: 0.72rem;
+  font-weight: 500;
+  padding: 5px 10px;
+  pointer-events: none;
+  opacity: 0;
+  z-index: 100;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.cfop-rail-btn:hover::after {
+  opacity: 1;
+  transform: translateY(-50%) translateX(0);
+}
+
+
+/* ── 3. Collapsible Drawer Panel ──────────────────────────────────── */
 .cfop-drawer {
   width: 0;
+  height: 100%;
   overflow: hidden;
   background: var(--s1);
   border-right: 1px solid transparent;
   display: flex;
   flex-direction: column;
-  transition: width 0.38s var(--ease), border-color 0.38s var(--ease);
+  transition: width 0.35s var(--ease), border-color 0.35s var(--ease);
 }
+
 .cfop-drawer.is-open {
   width: 280px;
   border-right-color: var(--line);
@@ -377,6 +203,7 @@
   border-bottom: 1px solid var(--line);
   min-width: 280px;
 }
+
 .cfop-drawer-title {
   font-family: var(--font-mono);
   font-size: 0.85rem;
@@ -385,22 +212,31 @@
   color: var(--ink);
   flex: 1;
 }
+
 .cfop-drawer-count {
   font-size: 0.7rem;
   color: var(--dim);
 }
+
 .cfop-drawer-close {
-  width: 28px; height: 28px;
-  display: grid; place-items: center;
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
   background: transparent;
   border: 1px solid transparent;
   border-radius: var(--r-sm);
   color: var(--dim);
   transition: background 0.12s, color 0.12s;
 }
-.cfop-drawer-close:hover { background: var(--s3); color: var(--ink); }
 
-/* ── Card list & Section Accordions ────────────────── */
+.cfop-drawer-close:hover {
+  background: var(--s3);
+  color: var(--ink);
+}
+
+
+/* ── 4. Drawer Sections & Accordions ──────────────────────────────── */
 .cfop-card-list {
   display: flex;
   flex-direction: column;
@@ -430,6 +266,7 @@
   cursor: pointer;
   transition: background 0.15s, border-color 0.15s;
 }
+
 .cfop-drawer-toggle:hover {
   background: var(--s3);
   border-color: var(--line-strong);
@@ -440,6 +277,7 @@
   height: 14px;
   transition: transform 0.3s var(--ease);
 }
+
 .cfop-drawer-toggle[aria-expanded="false"] .cfop-drawer-chevron {
   transform: rotate(-90deg);
 }
@@ -449,9 +287,11 @@
   grid-template-rows: 1fr;
   transition: grid-template-rows 0.35s var(--ease);
 }
+
 .cfop-drawer-section-body.is-collapsed {
   grid-template-rows: 0fr;
 }
+
 .cfop-drawer-section-inner {
   min-height: 0;
   overflow: hidden;
@@ -461,52 +301,73 @@
   padding-top: 4px;
 }
 
-/* ── Individual Cards ──────────────────────────────── */
+
+/* ── 5. CFOP Cards & Diagram Previews ─────────────────────────────── */
 .cfop-card {
   display: flex;
+  flex-direction: row;
   align-items: center;
-  gap: 8px;
-  padding: 8px;
-  border-radius: var(--r-md);
-  border: 1px solid var(--line);
-  background: var(--s2);
+  padding: 12px;
+  background: var(--card-bg, #1e2029);
+  border: 1px solid var(--line-light, #2a2e39);
+  border-radius: 8px;
   transition: border-color 0.15s, background 0.15s;
 }
+
 .cfop-card:hover {
-  background: var(--s3);
+  background: var(--s3, #222630);
   border-color: var(--card-color, var(--line-strong));
 }
 
 .cfop-card-diagram {
-  flex-shrink: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   width: 48px;
   height: 48px;
-  border-radius: 5px;
-  overflow: hidden;
+  flex-shrink: 0;
+  border-radius: 6px;
   background: var(--s1);
-  display: grid;
-  place-items: center;
+  border: 1px solid var(--line);
+  padding: 0px;
+  margin-right: 15px;
+  margin-left: 5px;
+
+}
+
+.cfop-card-diagram svg {
+  display: block;
+  max-width: 88px;
+  max-height: 88px;
+  scale: 1.4;
+  transform-origin: center;
 }
 
 .cfop-card-info {
+  text-align: left;
+  margin: 0px 0;
   flex: 1;
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 0px;
+  padding-right: 2px;
 }
+
 .cfop-card-name {
-  font-size: 0.72rem;
-  font-weight: 600;
-  color: var(--ink);
+  display: block;
+  font-weight: bold;
+  font-size: 0.7rem;
+  color: #fff;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
 .cfop-card-alg {
-  font-family: var(--font-mono);
-  font-size: 0.66rem;
-  color: var(--ink-2);
+  font-family: monospace;
+  font-size: .9rem;
+  color: #40c4ff;
   word-break: break-word;
   line-height: 1.4;
 }
@@ -514,37 +375,8 @@
 .cfop-card-actions {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  flex-shrink: 0;
-}
-.cfop-action-btn {
-  display: flex;
   align-items: center;
-  gap: 4px;
-  height: 24px;
-  padding: 0 8px;
-  border-radius: var(--r-sm);
-  border: 1px solid var(--line);
-  background: var(--s3);
-  color: var(--ink-2);
-  font-size: 0.68rem;
-  font-weight: 500;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: background 0.12s, color 0.12s, border-color 0.12s;
-}
-.cfop-action-btn .ic { width: 12px; height: 12px; }
-.cfop-action-btn:hover { background: var(--s4); color: var(--ink); border-color: var(--line-strong); }
-.cfop-action-btn:active { transform: scale(0.95); }
-.cfop-run:hover { background: color-mix(in srgb, var(--accent) 18%, var(--s4)); border-color: var(--accent); color: var(--ink); }
-.cfop-copy.copied { border-color: var(--face-b); color: var(--face-b); }
-
-/* ── Compact Icon-Only Action Buttons ──────────────── */
-.cfop-card-actions {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 4px;
+  gap: 2px;
   flex-shrink: 0;
 }
 
@@ -555,7 +387,7 @@
   height: 28px;
   padding: 0;
   border-radius: var(--r-sm, 6px);
-  border: 1px solid var(--line, rgba(255, 255, 255, 0.1));
+  border: 1px solid var(--line-light, rgba(255, 255, 255, 0.1));
   background: var(--s3, #232834);
   color: var(--ink-2, #b4b9c4);
   cursor: pointer;
@@ -565,6 +397,7 @@
 .cfop-action-btn .ic {
   width: 14px;
   height: 14px;
+  fill: currentColor;
 }
 
 .cfop-action-btn:hover {
@@ -594,49 +427,8 @@
   color: var(--face-b, #12b45c);
 }
 
-/* ── Responsive ────────────────────────────────────── */
-@media (max-width: 860px) {
-  .cfop-root {
-    flex-direction: column;
-    height: 100dvh;
-  }
-  .cfop-sidebar {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    z-index: 30;
-    flex-direction: row;
-  }
-  .cfop-rail {
-    flex-direction: row;
-    width: auto;
-    height: 52px;
-    padding: 6px 10px;
-    border-right: 0;
-    border-top: 1px solid var(--line);
-    gap: 6px;
-    overflow-x: auto;
-    overflow-y: hidden;
-  }
-  .cfop-rail-btn { width: 44px; height: 40px; }
-  .cfop-drawer {
-    position: fixed;
-    bottom: 52px;
-    left: 0;
-    height: 60vh;
-    width: 0 !important;
-    border-right: 0;
-    border-top: 1px solid transparent;
-    z-index: 25;
-  }
-  .cfop-drawer.is-open {
-    width: 100vw !important;
-    border-top-color: var(--line);
-  }
-}
 
-
-/* Brand Logo Container */
+/* ── 6. Brand Logo Components ─────────────────────────────────────── */
 .brand-logo {
   display: inline-flex;
   align-items: center;
@@ -645,7 +437,6 @@
   user-select: none;
 }
 
-/* Base Brand Word */
 .brand-word {
   font-size: 1rem;
   font-weight: 700;
@@ -654,18 +445,16 @@
 }
 
 .brand-word b {
-  color: var(--accent, #ffd500); /* Highlights "3D" with accent yellow */
+  color: var(--accent, #ffd500);
   font-weight: 800;
 }
 
-/* Pipe Divider */
 .brand-sep {
   color: var(--line, rgba(255, 255, 255, 0.01));
   font-weight: 3000;
   font-size: 0.9rem;
 }
 
-/* Status Badge */
 .brand-status {
   display: inline-flex;
   align-items: center;
@@ -673,8 +462,8 @@
   font-size: 0.72rem;
   font-style: normal;
   color: var(--ink-2, #b4b9c4);
-  background: rgba(255, 213, 0, 0);
-  border: .1px solid rgba(255, 213, 0, 0);
+  background: transparent;
+  border: 0.1px solid transparent;
   padding: 2px 8px;
 }
 
@@ -685,7 +474,6 @@
   text-transform: capitalize;
 }
 
-/* Animated Pulsing Status Dot */
 .status-dot {
   width: 6px;
   height: 6px;
@@ -702,5 +490,84 @@
   50% {
     opacity: 0.4;
     transform: scale(0.75);
+  }
+}
+
+
+/* ── 7. Responsive Media Queries & Accessibility ──────────────────── */
+@media (max-width: 860px) {
+  .cfop-root {
+    flex-direction: column;
+    height: 100dvh;
+  }
+
+  .cfop-sidebar {
+    position: fixed;
+    top: auto;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 56px;
+    z-index: 30;
+    flex-direction: row;
+  }
+
+  .cfop-rail {
+    flex-direction: row;
+    justify-content: flex-start;
+    width: 100%;
+    height: 56px;
+    padding: 8px 12px;
+    border-right: 0;
+    border-top: 1px solid var(--line, rgba(255, 255, 255, 0.08));
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+
+  .cfop-rail-btn {
+    width: 52px;
+    height: 40px;
+    flex-direction: row;
+    gap: 6px;
+  }
+
+  .cfop-rail-btn.is-active::before {
+    left: 50%;
+    top: auto;
+    bottom: -8px;
+    transform: translateX(-50%);
+    width: 20px;
+    height: 3px;
+    border-radius: 4px 4px 0 0;
+  }
+
+  .cfop-rail-btn::after {
+    display: none; /* Hide tooltips on touch devices */
+  }
+
+  .cfop-drawer {
+    position: fixed;
+    bottom: 56px;
+    left: 0;
+    height: 60vh;
+    width: 0 !important;
+    border-right: 0;
+    border-top: 1px solid transparent;
+    z-index: 25;
+  }
+
+  .cfop-drawer.is-open {
+    width: 100vw !important;
+    border-top-color: var(--line);
+  }
+}
+
+/* Reduced Motion Safety */
+@media (prefers-reduced-motion: reduce) {
+  .cfop-rail-btn,
+  .cfop-rail-btn::after,
+  .cfop-drawer {
+    transition: none !important;
+    transform: none !important;
   }
 }
