@@ -269,7 +269,9 @@ function buildCard(caseData, color) {
     const svgWrap = document.createElement('div');
     svgWrap.className = 'cfop-card-diagram';
 
-    if (activeSet === 'oll' && window.OllSVG) {
+    if (activeSet === 'pll' && window.PllSVG) {
+      svgWrap.innerHTML = window.PllSVG.buildPllSVG(caseData);
+    } else if (activeSet === 'oll' && window.OllSVG) {
       svgWrap.innerHTML = window.OllSVG.buildOllSVG(caseData.alg);
     } else if (window.F2lSVG) {
       svgWrap.innerHTML = window.F2lSVG.buildSVG(caseData);
