@@ -179,7 +179,18 @@
 
   function buildIsometricDiagram(algStr) {
     const cube = new CubeState();
-    const setupAlg = getInverseReverseAlg(algStr);
+	
+	cube.faces.U.fill('N');
+    
+    [0, 1, 2].forEach(k => {
+      cube.faces.F[k] = 'N';
+      cube.faces.R[k] = 'N';
+      cube.faces.B[k] = 'N';
+      cube.faces.L[k] = 'N';
+    });
+    
+	
+	const setupAlg = getInverseReverseAlg(algStr);
     cube.applySequence(setupAlg);
 
     let polygons = '';

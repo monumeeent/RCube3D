@@ -196,8 +196,28 @@
       const count = document.createElement('span');
       count.className = 'cfop-drawer-count';
       count.textContent = `${setData.badge} cases`;
+      // Collapse-all / expand-all toggle
+      const collapseAllBtn = document.createElement('button');
+      collapseAllBtn.type = 'button';
+      collapseAllBtn.className = 'cfop-collapse-all-btn';
+      collapseAllBtn.setAttribute('aria-label', 'Collapse all sections');
+      collapseAllBtn.textContent = 'Collapse All';
+      collapseAllBtn.addEventListener('click', () => {
+        const list = document.getElementById('cfopCardList');
+        if (!list) return;
+        const allExpanded = [...list.querySelectorAll('.cfop-drawer-toggle')].every(b => b.getAttribute('aria-expanded') === 'true');
+        const targetExpanded = !allExpanded;
+        list.querySelectorAll('.cfop-drawer-toggle').forEach(b => b.setAttribute('aria-expanded', targetExpanded));
+        list.querySelectorAll('.cfop-drawer-section-body').forEach(body => {
+          body.classList.toggle('is-expanded', targetExpanded);
+          body.classList.toggle('is-collapsed', !targetExpanded);
+        });
+        collapseAllBtn.textContent = targetExpanded ? 'Collapse All' : 'Expand All';
+      });
+
       head.appendChild(title);
       head.appendChild(count);
+      head.appendChild(collapseAllBtn);
       if (closeBtn) head.appendChild(closeBtn);
     }
 
@@ -224,6 +244,7 @@
           aria-expanded="true" 
           aria-controls="${sectionId}">
           <span class="cfop-drawer-section-title">${sub.label}</span>
+          <span class="cfop-drawer-section-count">${sub.cases.length}</span>
           <svg class="ic cfop-drawer-chevron" viewBox="0 0 24 24" aria-hidden="true">
             <polyline points="6 9 12 15 18 9"></polyline>
           </svg>
@@ -265,19 +286,32 @@ function buildCard(caseData, color) {
     card.className = 'cfop-card';
     card.style.setProperty('--card-color', color);
 
-    // 1. Generate Diagram (2D Top View for OLL, Isometric for F2L & others)
-    const svgWrap = document.createElement('div');
-    svgWrap.className = 'cfop-card-diagram';
+    // 1. Generate diagram SVG — injected directly (no wrapper div)
 
+    let svgHtml = '';
     if (activeSet === 'pll' && window.PllSVG) {
-      svgWrap.innerHTML = window.PllSVG.buildPllSVG(caseData);
+      svgHtml = window.PllSVG.buildPllSVG(caseData);
     } else if (activeSet === 'oll' && window.OllSVG) {
-      svgWrap.innerHTML = window.OllSVG.buildOllSVG(caseData.alg);
+      svgHtml = window.OllSVG.buildOllSVG(caseData.alg);
+    } else if (activeSet === 'wv' && window.WvSVG) {
+      svgHtml = window.WvSVG.buildSVG(caseData); // Calls wv-renderer.js
+	  
     } else if (window.F2lSVG) {
-      svgWrap.innerHTML = window.F2lSVG.buildSVG(caseData);
+      svgHtml = window.F2lSVG.buildSVG(caseData);
+    } else if (window.CfopSVG) {
+      svgHtml = window.CfopSVG.buildSVG(caseData);
     }
-
-    card.appendChild(svgWrap);
+	
+    if (svgHtml) {
+      const svgSetClass = `cfop-svg-${activeSet}`;
+      const tmp = document.createElement('div');
+      tmp.innerHTML = svgHtml;
+      const svgEl = tmp.querySelector('svg');
+      if (svgEl) {
+        svgEl.classList.add(svgSetClass);
+        card.appendChild(svgEl);
+      }
+    }
 
     // 2. Card Info
     const info = document.createElement('div');

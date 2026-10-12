@@ -32,9 +32,11 @@
 ------------------------------------------------------------------------
 
 * Base Key Press      : Standard Clockwise Move / Whole-Cube Rotation
+
 * Shift               : Prime / Counter-Clockwise Move (')
 * Ctrl                : Wide Move / 2-Layer Turn (r, f, u, d, l, b)
 * Alt                 : Double Turn (2)
+
 * Ctrl + Shift        : Wide Prime Move (r', f', u', d', l', b')
 * Ctrl + Alt          : Wide Double Turn (r2, f2, u2, d2, l2, b2)
 ------------------------------------------------------------------------
@@ -42,6 +44,12 @@
 ------------------------------------------------------------------------
 
 * Space     : Start inspection / start solve / stop timer
-* 1 / 2 / 3 / 4 : Camera Iso / Top / Front / Reset view
+* 1         : Camera — Isometric view
+* 2         : Camera — Top view
+* 3         : Camera — Front view
+* 4         : Camera — Side view (low 3/4 angle, new)
+* Alt+1–4   : Same camera presets (alt held)
+
 * Esc       : Close the mobile quick-action menu
 * \ (backslash) : Hide or show the sidebar
+* X-ray btn : Toggle semi-transparent cube (look-ahead / hidden sides)

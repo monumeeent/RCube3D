@@ -496,6 +496,9 @@
 
   function runAlgorithm(tokens, label, play = true) {
     loadSequence(tokens, label);
+    // Task 1.4: snap camera to the closest good angle before the alg plays,
+    // so the user is already looking at the relevant face.
+    // window.snapCameraToClosestFace?.();
     if (play) setPlaying(true);
   }
 
@@ -635,19 +638,37 @@
      5. Camera presets
      ========================================================== */
   const camBtns = [...document.querySelectorAll('.cam-btn')];
-  const CAM_KEYS = { 1: 'iso', 2: 'top', 3: 'front', 4: 'reset' };
+  // Plain 1-4: original presets. Alt+1-4: same presets (convenient with modifier held).
+  // Key 4 → 'side' (new low 3/4 angle); 'reset' is no longer bound to a number key.
+  const CAM_KEYS = { 1: 'iso', 2: 'top', 3: 'front', 4: 'side' };
 
   function setView(name) {
-    window.setCameraView?.(name);
-    camBtns.forEach(b => b.classList.toggle('is-active', b.dataset.view === name && name !== 'reset'));
-    const btn = camBtns.find(b => b.dataset.view === name);
+    const targetView = name || 'iso';
+    
+    // Directly animate to the requested view preset instead of auto-snapping
+    window.setCameraView?.(targetView);
+    
+    camBtns.forEach(b => b.classList.toggle('is-active', b.dataset.view === targetView && targetView !== 'reset'));
+    const btn = camBtns.find(b => b.dataset.view === targetView);
     if (btn) {
       btn.classList.add('is-pressed');
       setTimeout(() => btn.classList.remove('is-pressed'), 160);
     }
   }
+
   camBtns.forEach(b => b.addEventListener('click', () => setView(b.dataset.view)));
-  $('canvas-container').addEventListener('pointerdown', () => camBtns.forEach(b => b.classList.remove('is-active')));
+  $('canvas-container').addEventListener('pointerdown', () => camBtns.forEach(b => b.classList.remove('is-active')));  
+  
+  
+  // X-ray / look-ahead toggle (Task 1.5)
+  const xrayBtn = $('xrayBtn');
+  if (xrayBtn) {
+    xrayBtn.addEventListener('click', () => {
+      const active = window.toggleXrayMode?.();
+      xrayBtn.setAttribute('aria-pressed', String(!!active));
+      xrayBtn.classList.toggle('is-active', !!active);
+    });
+  }
 
   /* ==========================================================
      6. Quick actions (speed dial on mobile)
@@ -682,7 +703,9 @@
 
     const k = e.key.toLowerCase();
 
-    if (!e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey && CAM_KEYS[k]) {
+    // Plain 1-4 or Alt+1-4 → camera preset
+    if (!e.ctrlKey && !e.metaKey && !e.shiftKey && CAM_KEYS[k]) {
+      e.preventDefault();
       setView(CAM_KEYS[k]);
       return;
     }

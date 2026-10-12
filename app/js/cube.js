@@ -203,6 +203,29 @@
     return seen.every(set => set.size === 1);
   }
 
+  // ── X-ray / look-ahead mode (Task 1.5) ─────────────────────────────────
+  // In x-ray mode every cubie becomes semi-transparent so hidden faces can
+  // be seen through the visible ones for look-ahead during algorithm review.
+  let xrayEnabled = false;
+
+  function setXrayMode(enabled) {
+    xrayEnabled = !!enabled;
+    for (const mat of cubeMaterials.values()) {
+      mat.transparent = xrayEnabled;
+      mat.opacity = xrayEnabled ? 0.38 : 1.0;
+      mat.depthWrite = !xrayEnabled;
+      mat.needsUpdate = true;
+    }
+  }
+
+  function toggleXrayMode() {
+    setXrayMode(!xrayEnabled);
+    return xrayEnabled;
+  }
+
+  window.setXrayMode = setXrayMode;
+  window.toggleXrayMode = toggleXrayMode;
+
   window.RubiksCube = {
     STEP,
     setTurnDuration,

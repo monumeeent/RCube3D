@@ -17,8 +17,8 @@
     L: 'var(--face-l, #ff5900)',
     line: 'var(--line-strong, #1e2029)',
     neutral: 'var(--s4, #3a3d4a)',
-    edgeArrow: '#40c4ff',
-    cornerArrow: '#ff5b6e',
+    edgeArrow: 'white',
+    cornerArrow: 'black',
     text: 'var(--text-muted, #aeb4c2)'
   };
 
@@ -291,7 +291,7 @@
     const arrows = buildArrows(sim.moves);
     const name = escapeText(caseData.name || 'PLL');
 
-    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%" style="display:block; max-width:88px; max-height:88px" role="img" aria-label="${name}, viewed from the top, with arrows showing which pieces swap">${defs}${frame}${arrows}</svg>`;
+    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%" style="display:block; max-width:88px; max-height:88px; scale: 1.25" role="img" aria-label="${name}, viewed from the top, with arrows showing which pieces swap">${defs}${frame}${arrows}</svg>`;
   }
 
   function fallbackDiagram() {

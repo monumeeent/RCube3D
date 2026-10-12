@@ -84,17 +84,50 @@
     }
   }
 
-  const CAMERA_VIEWS = {
+const CAMERA_VIEWS = {
     reset: [0, 3.7, 4.5],
     iso: [3.3, 3.2, 3.5],
     top: [0, 6, 0.3],
-    front: [0, 0.3, 5.8]
+    front: [0, 0.3, 5.8],
+    // Slot 4: low 3/4 side view — shows Front + Right + a sliver of top.
+    // Distinct from iso (more side-on) and front (fully flat).
+    side: [4.8, 1.4, 3.2]
   };
   let cameraTween = null;
 
   function setCameraView(name) {
-    const target = CAMERA_VIEWS[name];
+    let target = CAMERA_VIEWS[name];
     if (!target || !camera || !controls) return;
+
+    const currentDir = camera.position.clone().normalize();
+    const distance = camera.position.length();
+
+    if (name === 'iso') {
+      target = [
+        currentDir.x >= 0 ? 3.3 : -3.3,
+        3.2,
+        currentDir.z >= 0 ? 3.5 : -3.5
+      ];
+    } else if (name === 'front') {
+      if (Math.abs(currentDir.x) > Math.abs(currentDir.z)) {
+        target = [Math.sign(currentDir.x) * distance, 0.3, 0];
+      } else {
+        target = [0, 0.3, Math.sign(currentDir.z) * distance];
+      }
+    } else if (name === 'side') {
+      const xSign = currentDir.x >= 0 ? 1 : -1;
+      const zSign = currentDir.z >= 0 ? 1 : -1;
+      target = [xSign * 4.8, 1.4, zSign * 3.2];
+    } else if (name === 'top') {
+      // Keep top-down high on the Y-axis, but slightly bias it toward your current 
+      // quadrant's X/Z offset so it doesn't flip orientation abruptly.
+      target = [
+        currentDir.x * 0.5, 
+        6, 
+        currentDir.z * 0.5
+      ];
+    }
+
     const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
     const end = new THREE.Vector3(...target);
     if (reduce) {
@@ -110,6 +143,44 @@
       duration: 650
     };
   }
+  
+  
+  
+  // Returns the name of the face whose outward normal is most aligned with the
+  // current camera direction (i.e. the face the camera is "looking at").
+  const FACE_NORMALS = {
+    front: [0, 0, 1], back: [0, 0, -1],
+    right: [1, 0, 0], left: [-1, 0, 0],
+    top: [0, 1, 0], bottom: [0, -1, 0]
+  };
+  function getClosestFace() {
+    if (!camera) return 'front';
+    const dir = camera.position.clone().normalize();
+    let best = 'front', bestDot = -Infinity;
+    for (const [face, n] of Object.entries(FACE_NORMALS)) {
+      const dot = dir.x * n[0] + dir.y * n[1] + dir.z * n[2];
+      if (dot > bestDot) { bestDot = dot; best = face; }
+    }
+    return best;
+  }
+
+  // Snap camera to the preset closest to the current viewpoint.
+  function snapCameraToClosestFace() {
+    if (!camera) return;
+    const dir = camera.position.clone().normalize();
+    let bestView = 'iso', bestDot = -Infinity;
+    for (const [name, pos] of Object.entries(CAMERA_VIEWS)) {
+      if (name === 'reset') continue;
+      const v = new THREE.Vector3(...pos).normalize();
+      const dot = dir.dot(v);
+      if (dot > bestDot) { bestDot = dot; bestView = name; }
+    }
+    setCameraView(bestView);
+    return bestView;
+  }
+
+  window.getClosestFace = getClosestFace;
+  window.snapCameraToClosestFace = snapCameraToClosestFace;
 
   function stepCameraTween(now) {
     if (!cameraTween) return;

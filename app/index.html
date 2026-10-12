@@ -93,8 +93,11 @@
         <button type="button" class="cam-btn" data-view="front" aria-label="Front view" data-tip="Front">
           <svg class="ic"><use href="#i-front"/></svg><kbd>3</kbd>
         </button>
-        <button type="button" class="cam-btn" data-view="reset" aria-label="Reset view" data-tip="Reset view">
-          <svg class="ic"><use href="#i-fit"/></svg><kbd>4</kbd>
+        <button type="button" class="cam-btn" data-view="side" aria-label="Side view" data-tip="Side">
+          <svg class="ic"><use href="#i-iso"/></svg><kbd>4</kbd>
+        </button>
+        <button type="button" class="cam-btn" id="xrayBtn" aria-label="Toggle X-ray / look-ahead" aria-pressed="false" data-tip="X-ray">
+          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8" opacity="0.4"/><circle cx="12" cy="12" r="4"/></svg>
         </button>
       </div>
 
@@ -268,11 +271,14 @@
   <script src="js/ui.js"></script>
 
   <!-- CFOP Drawer Modules (Must load in this order) -->
-  <script src="cfop/cfop-data.js"></script>
+  <script src="cfop/f2l-oll-data.js"></script>
   <script src="cfop/pll-data.js"></script>
+  <script src="cfop/wv-data.js"></script>  <!-- Load WV data last among datasets -->
+  
   <script src="cfop/f2l-renderer.js"></script>
-  <script src="cfop/oll-renderer.js"></script>
   <script src="cfop/pll-renderer.js"></script>
+  <script src="cfop/oll-renderer.js"></script>
+  <script src="cfop/wv-renderer.js"></script>
   <script src="cfop/cfop-drawer.js"></script>
 </body>
 </html>
