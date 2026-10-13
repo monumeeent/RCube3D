@@ -271,6 +271,7 @@
   }
 
   function buildPllSVG(caseData) {
+  window.CubeNotation.parseAlgorithm(caseData.alg);
     if (!caseData || !caseData.alg) return fallbackDiagram();
 
     let sim;
@@ -293,10 +294,14 @@
 
     return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%" style="display:block; max-width:88px; max-height:88px; scale: 1.25" role="img" aria-label="${name}, viewed from the top, with arrows showing which pieces swap">${defs}${frame}${arrows}</svg>`;
   }
-
-  function fallbackDiagram() {
+function fallbackDiagram() {
+  try {
     return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%" aria-hidden="true">${rect(32, 32, 36, COLORS.neutral)}</svg>`;
+  } catch (error) {
+    console.warn('[oll-renderer] Could not simulate OLL algorithm:', algStr, error);
+    throw new Error(`Could not render OLL algorithm: ${error.message}`);
   }
+}
 
   function escapeText(value) {
     return String(value).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&apos;' }[char]));

@@ -166,6 +166,8 @@
             this.applyMove("L'");
             break;
           }
+		  default:
+  throw new Error(`Unsupported F2L diagram move: ${m}`);
         }
       }
     }
@@ -240,7 +242,10 @@
     return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="100%" height="100%" style="display:block; max-width:64px; max-height:64px;" aria-hidden="true">${polygons}</svg>`;
   }
 
-  function buildSVG(caseData) {
+  // f2l-renderer.js
+function buildSVG(caseData) {
+  window.CubeNotation.parseAlgorithm(caseData.alg);
+  // Keep the existing function body after this line.
     return buildIsometricDiagram(caseData ? caseData.alg : "R U R' U'");
   }
 

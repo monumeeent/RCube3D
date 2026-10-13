@@ -238,6 +238,7 @@
   const EDGE_POS = { UB: { x: INNER + CELL, y: INNER }, UR: { x: INNER + 2 * CELL, y: INNER + CELL }, UF: { x: INNER + CELL, y: INNER + 2 * CELL }, UL: { x: INNER, y: INNER + CELL } };
 
   function buildOllSVG(algStr) {
+  window.CubeNotation.parseAlgorithm(algStr);
     if (!algStr) return fallbackDiagram();
 
     let sim;
@@ -286,8 +287,12 @@
   }
 
   function fallbackDiagram() {
+  try {
     return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 66 66" width="100%" height="100%" aria-hidden="true">${cell(INNER + CELL, INNER + CELL, COLORS.N)}</svg>`;
+  } catch (error) {
+    console.warn('[oll-renderer] Could not simulate OLL algorithm:', algStr, error);
+    throw new Error(`Could not render OLL algorithm: ${error.message}`);
   }
-
+}
   window.OllSVG = { buildOllSVG, simulateOll };
 })();

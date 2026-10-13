@@ -11,8 +11,7 @@
   const MAX_HISTORY = 1000;
   const MOVE_EPSILON = 0.1;
 
-  const MOVE_TOKEN =
-    /^(Rw|Lw|Uw|Dw|Fw|Bw|[RLUDFBrludfbMESxyz])(2|')?$/;
+  const MOVE_TOKEN = window.CubeNotation.TOKEN;
 
   let queueHead = 0;
   let THREE = null;
@@ -33,17 +32,9 @@
   }
 
   function parseMove(token) {
-    if (typeof token !== 'string') {
-      throw new Error('Move must be text.');
-    }
+	return { token: window.CubeNotation.normalizeToken(token) };
+}
 
-    const match = MOVE_TOKEN.exec(token);
-    if (!match) {
-      throw new Error(`Invalid move: "${token}"`);
-    }
-
-    return { token };
-  }
 
   function compactQueueIfNeeded() {
     if (
@@ -56,6 +47,8 @@
   }
 
 function enqueueMoves(tokens, kind = 'solving', tag = null) {
+  tokens = tokens.map(token => parseMove(token).token);
+
   const pending = window.moveQueue.length - queueHead;
 
   if (pending + tokens.length > MAX_PENDING_MOVES) {
@@ -68,6 +61,7 @@ function enqueueMoves(tokens, kind = 'solving', tag = null) {
   window.moveQueue.push(...tokens.map(token => ({ token, kind, tag })));
   renderRecentMoves();
 }
+
 
 function enqueueUndoMove(token) {
   const pending = window.moveQueue.length - queueHead;
@@ -184,12 +178,10 @@ function recordExecutedMove(token, kind = 'solving', tag = null) {
 
   renderRecentMoves();
 }
-  function invertMove(token) {
-    if (token.endsWith('2')) return token;
-    if (token.endsWith("'")) return token.slice(0, -1);
-    return `${token}'`;
-  }
 
+  function invertMove(token) {
+  return window.CubeNotation.invertToken(token);
+}
   function undoCubeMove() {
     const previousMove = moveHistory.pop();
 
@@ -244,7 +236,8 @@ function recordExecutedMove(token, kind = 'solving', tag = null) {
       return;
     }
 
-    const tokens = raw ? raw.split(/\s+/) : [];
+    const tokens = window.CubeNotation.parseAlgorithm(raw, MAX_ALGORITHM_LENGTH);
+enqueueMoves(tokens);
 
     try {
       // Validate the complete algorithm before adding any moves to the queue.
@@ -310,11 +303,14 @@ function recordExecutedMove(token, kind = 'solving', tag = null) {
   }
 
   function getTurnParameters(token, step = window.RubiksCube.STEP) {
-    if (!THREE || !camera) {
-      throw new Error('Cube controls have not been initialized.');
-    }
+  token = window.CubeNotation.normalizeToken(token);
 
-    const match = MOVE_TOKEN.exec(token);
+  if (!THREE || !camera) {
+    throw new Error('Cube controls have not been initialized.');
+  }
+
+  const match = MOVE_TOKEN.exec(token);
+  // Keep the remainder of the existing function unchanged.
     if (!match) {
       throw new Error(`Invalid move: "${token}"`);
     }

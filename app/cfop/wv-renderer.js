@@ -47,7 +47,9 @@
 
   function applyMove(cubies, token) {
     const match = /^([RLUDFBMESrludfbxyz])(?:([2])|('))?$/.exec(token);
-    if (!match) return;
+    if (!match) {
+  throw new Error(`Unsupported WV diagram move: ${token}`);
+}
     const move = match[1];
     const suffix = match[2] ? '2' : match[3] ? "'" : '';
     let axis, layer, quarter, wide = false, wholeCube = false;
@@ -184,6 +186,7 @@
   }
 
   function buildSVG(caseData) {
+  window.CubeNotation.parseAlgorithm(caseData.alg);
     const alg = caseData && caseData.alg ? caseData.alg : "R U R'";
     let sim;
     try {

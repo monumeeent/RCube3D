@@ -14,6 +14,26 @@
     set(k, v) { try { localStorage.setItem(k, v); } catch { /* noop */ } }
   };
 
+  const caseValidationErrors = new WeakMap();
+
+  function validateAllAlgorithms() {
+    for (const [setKey, set] of Object.entries(window.CFOP_DATA)) {
+      for (const subcat of set.subcats || []) {
+        for (const caseData of subcat.cases || []) {
+          try {
+            window.CubeNotation.parseAlgorithm(caseData.alg);
+          } catch (error) {
+            caseValidationErrors.set(caseData, error.message);
+            console.error(
+              `[cfop-drawer] Invalid algorithm ${setKey}/${caseData.id}:`,
+              error
+            );
+          }
+        }
+      }
+    }
+  }
+
   // ── Wait for DOM + deps ────────────────────────────────────────────────
   function ready(fn) {
     if (document.readyState !== 'loading') fn();
@@ -23,10 +43,12 @@
   ready(() => {
     // Deps may load slightly after DOMContentLoaded; defer one tick
     requestAnimationFrame(() => {
-      if (!window.CFOP_DATA || !window.CfopSVG) {
-        console.error('[cfop-drawer] Missing CFOP_DATA or CfopSVG');
+      if (!window.CFOP_DATA || !window.CfopSVG || !window.CubeNotation) {
+        console.error('[cfop-drawer] Missing CFOP data, renderer, or notation module.');
         return;
       }
+
+      validateAllAlgorithms();
       buildDOM();
       restoreState();
     });
@@ -66,7 +88,7 @@
       btn.type = 'button';
       btn.className = 'cfop-rail-btn';
       btn.dataset.set = key;
-      btn.setAttribute('aria-label', `${set.label} — ${set.badge} cases`);
+      btn.setAttribute('aria-label', `${set.label} —${set.badge} cases`);
       btn.innerHTML = `
         <span class="cfop-rail-label">${set.label}</span>
         <span class="cfop-rail-badge">${set.badge}</span>
@@ -75,22 +97,18 @@
       btn.addEventListener('click', () => toggleSet(key));
       rail.appendChild(btn);
     });
-	
-	
-		// Append Watermark to the bottom of the rail
-	const watermarkWrap = document.createElement('div');
-	watermarkWrap.className = 'cfop-watermark-wrap';
-	watermarkWrap.innerHTML = `
-			<h1 class="cfop-watermark">
-    MONUMEEENT
-    <span>MONUMEEENT</span>
-    <span>MONUMEEENT</span>
-    <span></span>
-	</h1>`;
-	rail.appendChild(watermarkWrap);
-	
-	
-	
+    
+    // Append Watermark to the bottom of the rail
+    const watermarkWrap = document.createElement('div');
+    watermarkWrap.className = 'cfop-watermark-wrap';
+    watermarkWrap.innerHTML = `
+      <h1 class="cfop-watermark">
+        MONUMEEENT
+        <span>MONUMEEENT</span>
+        <span>MONUMEEENT</span>
+        <span></span>
+      </h1>`;
+    rail.appendChild(watermarkWrap);
 
     // Drawer panel
     const drawer = document.createElement('div');
@@ -196,6 +214,7 @@
       const count = document.createElement('span');
       count.className = 'cfop-drawer-count';
       count.textContent = `${setData.badge} cases`;
+
       // Collapse-all / expand-all toggle
       const collapseAllBtn = document.createElement('button');
       collapseAllBtn.type = 'button';
@@ -281,36 +300,63 @@
     });
   }
 
-function buildCard(caseData, color) {
+  function buildCard(caseData, color) {
     const card = document.createElement('div');
     card.className = 'cfop-card';
     card.style.setProperty('--card-color', color);
 
-    // 1. Generate diagram SVG — injected directly (no wrapper div)
+    // Check validation error first
+    const validationError = caseValidationErrors.get(caseData);
+    if (validationError) {
+      card.classList.add('cfop-card-invalid');
 
-    let svgHtml = '';
-    if (activeSet === 'pll' && window.PllSVG) {
-      svgHtml = window.PllSVG.buildPllSVG(caseData);
-    } else if (activeSet === 'oll' && window.OllSVG) {
-      svgHtml = window.OllSVG.buildOllSVG(caseData.alg);
-    } else if (activeSet === 'wv' && window.WvSVG) {
-      svgHtml = window.WvSVG.buildSVG(caseData); // Calls wv-renderer.js
-	  
-    } else if (window.F2lSVG) {
-      svgHtml = window.F2lSVG.buildSVG(caseData);
-    } else if (window.CfopSVG) {
-      svgHtml = window.CfopSVG.buildSVG(caseData);
+      const name = document.createElement('span');
+      name.className = 'cfop-card-name';
+      name.textContent = caseData.name || caseData.id || 'Invalid case';
+
+      const message = document.createElement('p');
+      message.className = 'cfop-card-error';
+      message.setAttribute('role', 'alert');
+      message.textContent = `Algorithm unavailable: ${validationError}`;
+
+      card.append(name, message);
+      return card;
     }
-	
-    if (svgHtml) {
-      const svgSetClass = `cfop-svg-${activeSet}`;
-      const tmp = document.createElement('div');
-      tmp.innerHTML = svgHtml;
-      const svgEl = tmp.querySelector('svg');
-      if (svgEl) {
-        svgEl.classList.add(svgSetClass);
-        card.appendChild(svgEl);
+
+    try {
+      // 1. Generate diagram SVG
+      let svgHtml = '';
+      if (activeSet === 'pll' && window.PllSVG) {
+        svgHtml = window.PllSVG.buildPllSVG(caseData);
+      } else if (activeSet === 'oll' && window.OllSVG) {
+        svgHtml = window.OllSVG.buildOllSVG(caseData.alg);
+      } else if (activeSet === 'wv' && window.WvSVG) {
+        svgHtml = window.WvSVG.buildSVG(caseData);
+      } else if (window.F2lSVG) {
+        svgHtml = window.F2lSVG.buildSVG(caseData);
+      } else if (window.CfopSVG) {
+        svgHtml = window.CfopSVG.buildSVG(caseData);
       }
+      
+      if (svgHtml) {
+        const svgSetClass = `cfop-svg-${activeSet}`;
+        const tmp = document.createElement('div');
+        tmp.innerHTML = svgHtml;
+        const svgEl = tmp.querySelector('svg');
+        if (svgEl) {
+          svgEl.classList.add(svgSetClass);
+          card.appendChild(svgEl);
+        }
+      }
+    } catch (error) {
+      console.warn(`[cfop-drawer] Could not render diagram for ${caseData.id}:`, error);
+      const warning = document.createElement('div');
+      warning.className = 'cfop-card-diagram-error';
+      warning.setAttribute('role', 'img');
+      warning.setAttribute('aria-label', `Diagram unavailable for ${caseData.name}`);
+      warning.textContent = 'Diagram unavailable';
+      warning.title = error.message;
+      card.appendChild(warning);
     }
 
     // 2. Card Info
@@ -329,7 +375,7 @@ function buildCard(caseData, color) {
 
     card.appendChild(info);
 
-    // 3. Card Action Buttons (SVG Icons Only)
+    // 3. Card Action Buttons
     const actions = document.createElement('div');
     actions.className = 'cfop-card-actions';
 
@@ -364,8 +410,6 @@ function buildCard(caseData, color) {
     actions.appendChild(setupBtn);
     actions.appendChild(copyBtn);
     card.appendChild(actions);
-	
-
 
     return card;
   }
@@ -382,28 +426,40 @@ function buildCard(caseData, color) {
 
     let cleanAlg = rawAlg;
 
-    if (isSetup) {
-      // Invert algorithm sequence for setup
-      if (window.CfopSVG && typeof window.CfopSVG.getInverseReverseAlg === 'function') {
-        cleanAlg = window.CfopSVG.getInverseReverseAlg(rawAlg);
-      } else {
-        const tokens = rawAlg
-          .replace(/[()]/g, '')
-          .replace(/[\u2018\u2019]/g, "'")
-          .trim()
-          .split(/\s+/);
+    try {
+      if (isSetup) {
+        if (window.CubeNotation && typeof window.CubeNotation.invertAlgorithm === 'function') {
+          cleanAlg = window.CubeNotation.invertAlgorithm(rawAlg);
+        } else if (window.CfopSVG && typeof window.CfopSVG.getInverseReverseAlg === 'function') {
+          cleanAlg = window.CfopSVG.getInverseReverseAlg(rawAlg);
+        } else {
+          const tokens = rawAlg
+            .replace(/[()]/g, '')
+            .replace(/[\u2018\u2019]/g, "'")
+            .trim()
+            .split(/\s+/);
 
-        cleanAlg = tokens
-          .map(m => m.endsWith("'") ? m.slice(0, -1) : m.endsWith("2") ? m : m + "'")
-          .reverse()
-          .join(' ');
+          cleanAlg = tokens
+            .map(m => m.endsWith("'") ? m.slice(0, -1) : m.endsWith("2") ? m : m + "'")
+            .reverse()
+            .join(' ');
+        }
+      } else {
+        if (window.CubeNotation && typeof window.CubeNotation.parseAlgorithm === 'function') {
+          cleanAlg = window.CubeNotation.parseAlgorithm(rawAlg).join(' ');
+        } else {
+          cleanAlg = rawAlg
+            .replace(/[()]/g, '')
+            .replace(/[\u2018\u2019]/g, "'")
+            .trim();
+        }
       }
-    } else {
-      // Strip brackets and normalize apostrophes
-      cleanAlg = rawAlg
-        .replace(/[()]/g, '')
-        .replace(/[\u2018\u2019]/g, "'")
-        .trim();
+    } catch (error) {
+      window.reportCubeStatus?.(
+        `Cannot run ${caseName || 'algorithm'}: ${error.message}`,
+        true
+      );
+      return;
     }
 
     // Insert clean algorithm into the Move Queue input box
@@ -423,23 +479,8 @@ function buildCard(caseData, color) {
       isSetup ? `Loaded setup for ${caseName}.` : `Running ${caseName}.`
     );
   }
-  
-  
-  // ── Execute & Copy ─────────────────────────────────────────────────────
-  function runAlgorithm(caseData) {
-    const tokens = caseData.alg.replace(/[\u2018\u2019]/g, "'").trim().split(/\s+/);
-    if (!window.enqueueCubeMoves) {
-      window.reportCubeStatus?.('Controls not ready.', true);
-      return;
-    }
-    try {
-      window.enqueueCubeMoves(tokens);
-      window.reportCubeStatus?.(`Running ${caseData.name}.`);
-    } catch (err) {
-      window.reportCubeStatus?.(err.message, true);
-    }
-  }
 
+  // ── Execute & Copy ─────────────────────────────────────────────────────
   async function copyAlgorithm(caseData, btn) {
     try {
       if (navigator.clipboard && window.isSecureContext) {
@@ -481,9 +522,6 @@ function buildCard(caseData, color) {
       }
     } catch { /* ignore */ }
   }
-  
-  
-
 
   const STYLES = ``;
 

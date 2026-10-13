@@ -225,12 +225,73 @@
 
   window.setXrayMode = setXrayMode;
   window.toggleXrayMode = toggleXrayMode;
+  
+  
+  
+  function getStateSnapshot() {
+  if (isAnimating) {
+    throw new Error('Cannot snapshot the cube during an animation.');
+  }
+
+  scene.updateMatrixWorld(true);
+
+  const localNormals = [
+    new THREE.Vector3(1, 0, 0),
+    new THREE.Vector3(-1, 0, 0),
+    new THREE.Vector3(0, 1, 0),
+    new THREE.Vector3(0, -1, 0),
+    new THREE.Vector3(0, 0, 1),
+    new THREE.Vector3(0, 0, -1)
+  ];
+
+  const faceName = normal => {
+    const x = Math.round(normal.x);
+    const y = Math.round(normal.y);
+    const z = Math.round(normal.z);
+
+    if (x === 1) return 'R';
+    if (x === -1) return 'L';
+    if (y === 1) return 'U';
+    if (y === -1) return 'D';
+    if (z === 1) return 'F';
+    if (z === -1) return 'B';
+    return '?';
+  };
+
+  return cubies.map(cubie => {
+    const position = cubie.getWorldPosition(new THREE.Vector3());
+    const quaternion = cubie.getWorldQuaternion(new THREE.Quaternion());
+
+    const gridPosition = [
+      Math.round(position.x / STEP),
+      Math.round(position.y / STEP),
+      Math.round(position.z / STEP)
+    ].join(',');
+
+    const stickers = [];
+
+    cubie.material.forEach((material, index) => {
+      if (material.color.getHex() === COLORS.INNER) return;
+
+      const normal = localNormals[index]
+        .clone()
+        .applyQuaternion(quaternion);
+
+      stickers.push(`${faceName(normal)}:${material.color.getHexString()}`);
+    });
+
+    stickers.sort();
+    return `${gridPosition}|${stickers.join(',')}`;
+  }).sort().join(';');
+}
+  
 
   window.RubiksCube = {
     STEP,
     setTurnDuration,
     isSolved,
     init,
+	getStateSnapshot,
     executeMove,
     rebuildCube,
     get isAnimating() {

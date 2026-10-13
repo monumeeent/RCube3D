@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RCube3D Regression Tests</title>
+  <style>
+    body { font: 15px/1.5 system-ui, sans-serif; margin: 24px; }
+    #canvas-container { width: 320px; height: 320px; }
+    #results { white-space: pre-wrap; }
+    .pass { color: #087a35; }
+    .fail { color: #b00020; }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+</head>
+<body>
+  <h1>RCube3D Regression Tests</h1>
+  <p id="app-status" role="status">Loading test cube...</p>
+  <div id="canvas-container"></div>
+  <pre id="results">Preparing tests…</pre>
+
+  <script src="../js/notation.js"></script>
+  <script src="../js/cube.js"></script>
+  <script src="../js/controls.js"></script>
+  <script src="../js/main.js"></script>
+
+  <script src="../cfop/f2l-oll-data.js"></script>
+  <script src="../cfop/pll-data.js"></script>
+  <script src="../cfop/wv-data.js"></script>
+
+  <script src="../cfop/f2l-renderer.js"></script>
+  <script src="../cfop/oll-renderer.js"></script>
+  <script src="../cfop/pll-renderer.js"></script>
+  <script src="../cfop/wv-renderer.js"></script>
+  <script src="regression.js"></script>
+</body>
+</html>

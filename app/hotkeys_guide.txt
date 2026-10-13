@@ -48,7 +48,7 @@
 * 2         : Camera — Top view
 * 3         : Camera — Front view
 * 4         : Camera — Side view (low 3/4 angle, new)
-* Alt+1–4   : Same camera presets (alt held)
+
 
 * Esc       : Close the mobile quick-action menu
 * \ (backslash) : Hide or show the sidebar

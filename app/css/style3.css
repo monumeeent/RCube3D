@@ -1,0 +1,122 @@
+/* app/css/style3.css
+ * Files Connected: [index.html, cfop/cfop-drawer.js, css/watermark.css]
+ * Code: CSS | Selectors: CFOP error states and mobile layout
+ * Work: CFOP Responsive Styling | Main Purpose: Styles mobile CFOP navigation and errors.
+ * Last Edit Time: Replace with the actual save time in the project's timezone.
+ */
+
+/* ==========================================================================
+   01. CFOP VALIDATION AND DIAGRAM ERRORS
+   ========================================================================== */
+
+.cfop-card-invalid {
+  border-color: var(--danger, #ff6b5f);
+}
+
+.cfop-card-error {
+  width: 100%;
+  color: var(--danger, #ff6b5f);
+  font-size: 0.72rem;
+  line-height: 1.4;
+}
+
+.cfop-card-diagram-error {
+  display: grid;
+  flex: 0 0 48px;
+  width: 48px;
+  min-height: 48px;
+  padding: 4px;
+  place-items: center;
+  border: 1px solid var(--danger, #ff6b5f);
+  border-radius: 6px;
+  color: var(--danger, #ff6b5f);
+  font-size: 0.62rem;
+  line-height: 1.2;
+  text-align: center;
+}
+
+/* ==========================================================================
+   02. CFOP MOBILE LAYOUT
+   ========================================================================== */
+
+@media (max-width: 860px) {
+  .cfop-root {
+    flex-direction: column;
+  }
+
+  .cfop-sidebar {
+    position: fixed;
+    z-index: 30;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: calc(56px + env(safe-area-inset-bottom, 0px));
+    flex-direction: row;
+  }
+
+  .cfop-rail {
+    flex: 1 1 auto;
+    flex-direction: row;
+    justify-content: flex-start;
+    width: 100%;
+    min-width: 0;
+    height: 56px;
+    padding: 6px 10px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    border-top: 1px solid var(--line);
+    border-right: 0;
+    gap: 6px;
+    scrollbar-width: none;
+  }
+
+  .cfop-rail::-webkit-scrollbar {
+    display: none;
+  }
+
+  .cfop-rail-btn {
+    flex: 0 0 44px;
+    width: 44px;
+    height: 44px;
+    min-height: 44px;
+    flex-direction: row;
+  }
+
+  .cfop-rail-btn.is-active::before {
+    top: auto;
+    bottom: -7px;
+    left: 50%;
+    width: 20px;
+    height: 3px;
+    border-radius: 4px 4px 0 0;
+    transform: translateX(-50%);
+  }
+
+  .cfop-rail-btn::after {
+    display: none;
+  }
+
+  /* The vertical watermark does not fit in the mobile horizontal rail. */
+  .cfop-watermark-wrap {
+    display: none;
+  }
+
+  .cfop-drawer {
+    position: fixed;
+    z-index: 25;
+    right: 0;
+    bottom: calc(56px + env(safe-area-inset-bottom, 0px));
+    left: 0;
+    width: 0;
+    height: min(60dvh, 560px);
+    max-height: calc(100dvh - 56px - env(safe-area-inset-bottom, 0px));
+    border-top: 1px solid transparent;
+    border-right: 0;
+  }
+
+  .cfop-drawer.is-open {
+    width: 100vw;
+    border-top-color: var(--line);
+  }
+}

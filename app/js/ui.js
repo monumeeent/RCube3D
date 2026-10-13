@@ -485,14 +485,14 @@
   }
 
   function parseAlg(raw) {
-    const text = raw.replace(/[‘’′]/g, "'").replace(/[()\[\],]/g, ' ').trim();
-    if (!text) return { error: 'Enter at least one move.' };
-    const tokens = text.split(/\s+/).map(t => t.replace(/^([A-Za-z]w?)2'$/, '$12').replace(/^([A-Za-z]w?)'2$/, '$12'));
-    if (tokens.length > MAX_SEQ) return { error: `Sequences are limited to ${MAX_SEQ} moves.` };
-    const bad = tokens.find(t => !window.MOVE_TOKEN.test(t));
-    if (bad) return { error: `"${bad}" is not a valid move. Use R L U D F B, r l u d f b, M E S, x y z with ' or 2.` };
-    return { tokens };
+  try {
+    return {
+      tokens: window.CubeNotation.parseAlgorithm(raw, MAX_SEQ)
+    };
+  } catch (error) {
+    return { error: error.message };
   }
+}
 
   function runAlgorithm(tokens, label, play = true) {
     loadSequence(tokens, label);
@@ -640,7 +640,16 @@
   const camBtns = [...document.querySelectorAll('.cam-btn')];
   // Plain 1-4: original presets. Alt+1-4: same presets (convenient with modifier held).
   // Key 4 → 'side' (new low 3/4 angle); 'reset' is no longer bound to a number key.
-  const CAM_KEYS = { 1: 'iso', 2: 'top', 3: 'front', 4: 'side' };
+  const CAMERA_CODES = {
+  Digit1: 'iso',
+  Digit2: 'top',
+  Digit3: 'front',
+  Digit4: 'side',
+  Numpad1: 'iso',
+  Numpad2: 'top',
+  Numpad3: 'front',
+  Numpad4: 'side'
+};
 
   function setView(name) {
     const targetView = name || 'iso';
@@ -701,14 +710,21 @@
     if (e.key === 'Escape') { setQuick(false); return; }
     if (e.key === '\\' && !e.ctrlKey && !e.metaKey && !e.altKey) { e.preventDefault(); panelBtn.click(); return; }
 
-    const k = e.key.toLowerCase();
+const k = e.key.toLowerCase();    
+    // Plain 1-4 → camera preset
+    const cameraView = CAMERA_CODES[e.code];
+if (
+  !e.ctrlKey &&
+  !e.metaKey &&
+  !e.altKey &&
+  !e.shiftKey &&
+  cameraView
+) {
+  e.preventDefault();
+  setView(cameraView);
+  return;
 
-    // Plain 1-4 or Alt+1-4 → camera preset
-    if (!e.ctrlKey && !e.metaKey && !e.shiftKey && CAM_KEYS[k]) {
-      e.preventDefault();
-      setView(CAM_KEYS[k]);
-      return;
-    }
+}
 
     if (e.code === 'Space' && !e.ctrlKey && !e.metaKey && !e.altKey) {
       e.preventDefault(); // global timer key, even when a button has focus
@@ -720,6 +736,8 @@
     const hit = e.ctrlKey ? CTRL_TO_PAD[k] : KEY_TO_PAD[k];
     if (hit && !(e.ctrlKey && !CTRL_TO_PAD[k])) flashKey(hit.cat, hit.base);
   });
+  
+  
   window.addEventListener('keyup', e => {
     syncHeldModifier(e);
     if (e.code === 'Space' && !isTyping(e.target)) e.preventDefault(); // stop native button click
