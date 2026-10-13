@@ -1,12 +1,4 @@
-/* watermark.css — Rotated Glitch/Split Watermark for .cfop-rail */
 
-.cfop-rail {
-  display: flex !important;
-  flex-direction: column !important;
-  height: 100% !important;
-  position: relative !important;
-  overflow: hidden;
-}
 
 /* Push watermark to the bottom of the rail */
 .cfop-watermark-wrap {

@@ -1,7 +1,7 @@
 /* app/css/style3.css
  * Files Connected: [index.html, cfop/cfop-drawer.js, css/watermark.css]
- * Code: CSS | Selectors: CFOP error states and mobile layout
- * Work: CFOP Responsive Styling | Main Purpose: Styles mobile CFOP navigation and errors.
+ * Code: CSS | Selectors: CFOP error states, mobile navigation, mobile overlays
+ * Work: Mobile Experience | Main Purpose: Adapts the cube app and CFOP library to mobile.
  * Last Edit Time: Replace with the actual save time in the project's timezone.
  */
 
@@ -36,13 +36,89 @@
 }
 
 /* ==========================================================================
-   02. CFOP MOBILE LAYOUT
+   02. MOBILE APP LAYOUT AND CONTROLS
    ========================================================================== */
 
 @media (max-width: 860px) {
+  /* Keep the 3D stage full-screen; display the control panel as an overlay. */
   .cfop-root {
-    flex-direction: column;
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 100dvh;
   }
+
+  .cfop-root > .app {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100dvh;
+    min-width: 0;
+  }
+
+  .cfop-root > .app > .stage {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    min-height: 0;
+    padding: 0;
+  }
+
+  .cfop-root > .app > .panel {
+    position: absolute;
+    z-index: 16;
+    right: 0;
+    bottom: calc(68px + env(safe-area-inset-bottom, 0px));
+    left: 0;
+    width: auto;
+    max-height: calc(100dvh - 150px);
+    margin: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    border: 1px solid var(--line);
+    border-bottom: 0;
+    border-radius: 18px 18px 0 0;
+    background: var(--s1);
+    box-shadow: 0 -14px 30px -10px rgba(var(--shadow-tint), 0.7);
+  }
+
+  .cfop-root > .app.panel-collapsed > .panel {
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  .panel-toggle {
+    z-index: 18;
+    bottom: calc(68px + env(safe-area-inset-bottom, 0px) + 8px);
+  }
+
+  /* Keep the camera toolbar clear of the brand on narrow screens. */
+  .brand-status,
+  .brand-sep {
+    display: none;
+  }
+
+  /* Put the existing quick-actions menu beside the top controls,
+     rather than over the main cube-swipe area. */
+  .quick {
+    z-index: 9;
+    top: 68px;
+    right: 12px;
+    bottom: auto;
+    left: auto;
+    transform: none;
+  }
+
+  .hud {
+    bottom: calc(68px + env(safe-area-inset-bottom, 0px) + 12px);
+  }
+
+  /* ==========================================================================
+     03. CFOP BOTTOM NAVIGATION
+     ========================================================================== */
 
   .cfop-sidebar {
     position: fixed;
@@ -51,23 +127,29 @@
     bottom: 0;
     left: 0;
     width: 100%;
-    height: calc(56px + env(safe-area-inset-bottom, 0px));
+    height: calc(68px + env(safe-area-inset-bottom, 0px));
     flex-direction: row;
+    background: var(--s1);
+    border-top: 1px solid var(--line);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
   }
 
   .cfop-rail {
+    display: flex;
     flex: 1 1 auto;
     flex-direction: row;
-    justify-content: flex-start;
+    align-items: stretch;
+    justify-content: space-around;
+    gap: 4px;
     width: 100%;
     min-width: 0;
-    height: 56px;
-    padding: 6px 10px;
+    height: 68px;
+    padding: 6px 8px;
     overflow-x: auto;
     overflow-y: hidden;
-    border-top: 1px solid var(--line);
-    border-right: 0;
-    gap: 6px;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
     scrollbar-width: none;
   }
 
@@ -76,20 +158,37 @@
   }
 
   .cfop-rail-btn {
-    flex: 0 0 44px;
-    width: 44px;
-    height: 44px;
+    display: flex;
+    flex: 1 1 0;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    width: auto;
+    min-width: 44px;
+    max-width: 112px;
+    height: 56px;
     min-height: 44px;
-    flex-direction: row;
+    padding: 4px;
+    border-radius: 12px;
+  }
+
+  .cfop-rail-label {
+    font-size: 0.7rem;
+  }
+
+  /* Counts take space without helping users choose a category on mobile. */
+  .cfop-rail-badge {
+    display: none;
   }
 
   .cfop-rail-btn.is-active::before {
-    top: auto;
-    bottom: -7px;
+    top: 0;
+    bottom: auto;
     left: 50%;
-    width: 20px;
+    width: 22px;
     height: 3px;
-    border-radius: 4px 4px 0 0;
+    border-radius: 0 0 4px 4px;
     transform: translateX(-50%);
   }
 
@@ -97,26 +196,67 @@
     display: none;
   }
 
-  /* The vertical watermark does not fit in the mobile horizontal rail. */
+  /* The vertical watermark does not belong in the horizontal mobile bar. */
   .cfop-watermark-wrap {
     display: none;
   }
 
+  /* ==========================================================================
+     04. CFOP BOTTOM-SHEET DRAWER
+     ========================================================================== */
+
   .cfop-drawer {
     position: fixed;
-    z-index: 25;
+    z-index: 31;
     right: 0;
-    bottom: calc(56px + env(safe-area-inset-bottom, 0px));
+    bottom: calc(68px + env(safe-area-inset-bottom, 0px));
     left: 0;
-    width: 0;
-    height: min(60dvh, 560px);
-    max-height: calc(100dvh - 56px - env(safe-area-inset-bottom, 0px));
-    border-top: 1px solid transparent;
-    border-right: 0;
+    width: 100vw;
+    height: min(68dvh, 680px);
+    max-height: calc(100dvh - 68px - env(safe-area-inset-bottom, 0px));
+    overflow-x: hidden;
+    overflow-y: auto;
+    border: 1px solid var(--line);
+    border-bottom: 0;
+    border-radius: 18px 18px 0 0;
+    background: var(--s1);
+    box-shadow: 0 -16px 36px rgba(0, 0, 0, 0.35);
+    pointer-events: none;
+    transform: translateY(105%);
+    visibility: hidden;
+    transition:
+      transform 0.3s var(--ease),
+      visibility 0.3s;
   }
 
   .cfop-drawer.is-open {
     width: 100vw;
-    border-top-color: var(--line);
+    pointer-events: auto;
+    transform: translateY(0);
+    visibility: visible;
+  }
+
+  .cfop-drawer-head {
+    min-width: 0;
+    min-height: 52px;
+  }
+
+  .cfop-card-list {
+    min-width: 0;
+  }
+
+  .cfop-drawer-toggle {
+    min-height: 44px;
+  }
+
+  .cfop-drawer-close {
+    width: 44px;
+    height: 44px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cfop-drawer {
+    transition: none;
   }
 }
