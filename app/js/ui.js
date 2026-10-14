@@ -782,15 +782,38 @@ function playLoop() {
     // Directly animate to the requested view preset instead of auto-snapping
     window.setCameraView?.(targetView);
     
-    camBtns.forEach(b => b.classList.toggle('is-active', b.dataset.view === targetView && targetView !== 'reset'));
-    const btn = camBtns.find(b => b.dataset.view === targetView);
-    if (btn) {
-      btn.classList.add('is-pressed');
-      setTimeout(() => btn.classList.remove('is-pressed'), 160);
+    camBtns.forEach(b => {
+  const active = b.dataset.view === targetView && targetView !== 'reset';
+  b.classList.toggle('is-active', active);
+
+  if (b.dataset.view === 'iso') {
+    b.setAttribute('aria-pressed', String(active));
+  }
+});
+$('canvas-container').addEventListener('pointerdown', () => {
+  camBtns.forEach(b => {
+    b.classList.remove('is-active');
+
+    if (b.dataset.view === 'iso') {
+      b.setAttribute('aria-pressed', 'false');
     }
+  });
+});
+
+
   }
 
-  camBtns.forEach(b => b.addEventListener('click', () => setView(b.dataset.view)));
+  camBtns.forEach(b => {
+  b.addEventListener('click', () => {
+    if (isNarrow() && b.dataset.view === 'iso') {
+      setView(b.classList.contains('is-active') ? 'reset' : 'iso');
+      return;
+    }
+
+    setView(b.dataset.view);
+  });
+});
+
   $('canvas-container').addEventListener('pointerdown', () => camBtns.forEach(b => b.classList.remove('is-active')));  
   
   

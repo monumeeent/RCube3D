@@ -212,31 +212,38 @@ function syncMobileCfopButton() {
 }
 
   function openDrawer() {
-    drawerOpen = true;
-    const drawer = document.getElementById('cfopDrawer');
-    const sidebar = document.querySelector('.cfop-sidebar');
-    drawer?.classList.add('is-open');
-    sidebar?.classList.add('drawer-visible');
-    if (window.matchMedia('(max-width: 860px)').matches) {
-  document.dispatchEvent(new CustomEvent('mobile:sheet-open', {
-    detail: { sheet: 'cfop' }
-  }));
-}
-	
-    saveState();
-	syncMobileCfopButton()
+  drawerOpen = true;
+  const drawer = document.getElementById('cfopDrawer');
+  const sidebar = document.querySelector('.cfop-sidebar');
+  const root = document.querySelector('.cfop-root');
+
+  drawer?.classList.add('is-open');
+  sidebar?.classList.add('drawer-visible');
+  root?.classList.add('cfop-open');
+
+  if (window.matchMedia('(max-width: 860px)').matches) {
+    document.dispatchEvent(new CustomEvent('mobile:sheet-open', {
+      detail: { sheet: 'cfop' }
+    }));
   }
+
+  saveState();
+  syncMobileCfopButton();
+}
 
   function closeDrawer() {
-    drawerOpen = false;
-    const drawer = document.getElementById('cfopDrawer');
-    const sidebar = document.querySelector('.cfop-sidebar');
-    drawer?.classList.remove('is-open');
-    sidebar?.classList.remove('drawer-visible');
+  drawerOpen = false;
+  const drawer = document.getElementById('cfopDrawer');
+  const sidebar = document.querySelector('.cfop-sidebar');
+  const root = document.querySelector('.cfop-root');
 
-    saveState();
-	syncMobileCfopButton()
-  }
+  drawer?.classList.remove('is-open');
+  sidebar?.classList.remove('drawer-visible');
+  root?.classList.remove('cfop-open');
+
+  saveState();
+  syncMobileCfopButton();
+}
 
   function updateRail() {
     document.querySelectorAll('.cfop-rail-btn').forEach(btn => {

@@ -11,19 +11,18 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-<!-- Stylesheets -->
+
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/style2.css">
   <link rel="stylesheet" href="css/watermark.css">
   <link rel="stylesheet" href="css/style3.css">
-<link rel="stylesheet" href="css/mobile.css">
+  <link rel="stylesheet" href="css/mobile.css">
 
-  <!-- External Dependencies -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 </head>
 <body>
-  <!-- Icon sprite: one stroke family, 1.9 stroke width everywhere -->
+  <!-- Project SVG icon sprite -->
   <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
     <defs>
       <symbol id="i-shuffle" viewBox="0 0 24 24"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></symbol>
@@ -54,7 +53,6 @@
   <a class="skip-link" href="#panel">Skip to controls</a>
 
   <div class="app main-layout">
-    <!-- ================= STAGE (hero canvas) ================= -->
     <section class="stage" aria-label="3D cube viewer">
       <div id="canvas-container"></div>
 
@@ -67,74 +65,84 @@
             <rect x="18" y="18" width="15" height="15" rx="3" class="mark-l"></rect>
           </svg>
           <div class="brand-logo">
-  <span class="brand-word">RCube<b>3D</b></span>
-  <span class="brand-sep">|</span>
-  <small class="brand-status">
-    <span class="status-dot"></span>
-    <i>In Development</i>
-  </small>
-</div>
+            <span class="brand-word">RCube<b>3D</b></span>
+            <span class="brand-sep">|</span>
+            <small class="brand-status">
+              <span class="status-dot"></span>
+              <i>In Development</i>
+            </small>
+          </div>
         </a>
       </header>
 
-      <!-- Compact timer readout, mirrors the timer card -->
       <div class="hud" id="hud" data-state="idle" aria-hidden="true">
         <span class="hud-time" id="hudTime">0.00</span>
         <span class="hud-sep"></span>
         <span class="hud-tps"><b id="hudTps">0.0</b> tps</span>
       </div>
 
-      <!-- Floating camera presets -->
       <div class="cam" role="toolbar" aria-label="Camera presets">
-        <button type="button" class="cam-btn" data-view="iso" aria-label="Isometric view" data-tip="Iso">
-          <svg class="ic"><use href="#i-iso"/></svg><kbd>1</kbd>
+        <button type="button" class="cam-btn" data-view="iso" aria-label="Toggle isometric view" aria-pressed="false" data-tip="Iso">
+          <svg class="ic"><use href="#i-iso"></use></svg><kbd>1</kbd>
         </button>
         <button type="button" class="cam-btn" data-view="top" aria-label="Top view" data-tip="Top">
-          <svg class="ic"><use href="#i-top"/></svg><kbd>2</kbd>
+          <svg class="ic"><use href="#i-top"></use></svg><kbd>2</kbd>
         </button>
         <button type="button" class="cam-btn" data-view="front" aria-label="Front view" data-tip="Front">
-          <svg class="ic"><use href="#i-front"/></svg><kbd>3</kbd>
+          <svg class="ic"><use href="#i-front"></use></svg><kbd>3</kbd>
         </button>
         <button type="button" class="cam-btn" data-view="side" aria-label="Side view" data-tip="Side">
-          <svg class="ic"><use href="#i-iso"/></svg><kbd>4</kbd>
+          <svg class="ic"><use href="#i-iso"></use></svg><kbd>4</kbd>
         </button>
         <button type="button" class="cam-btn" id="xrayBtn" aria-label="Toggle X-ray / look-ahead" aria-pressed="false" data-tip="X-ray">
-          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8" opacity="0.4"/><circle cx="12" cy="12" r="4"/></svg>
+          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="8" opacity="0.4"></circle>
+            <circle cx="12" cy="12" r="4"></circle>
+          </svg>
         </button>
       </div>
 
       <button type="button" class="panel-toggle" id="panelToggle" aria-expanded="true" aria-controls="panel" aria-label="Collapse sidebar" title="Hide controls ( \ )">
-        <svg class="ic"><use href="#i-chev-r"/></svg>
+        <svg class="ic"><use href="#i-chev-r"></use></svg>
       </button>
 
       <p id="app-status" role="status" aria-live="polite">Loading cube...</p>
 
-      <!-- Floating quick actions (desktop: pill, mobile: speed dial) -->
       <div class="quick" id="quick">
+        <button
+          type="button"
+          class="q-btn cam-btn q-iso"
+          id="mobileIsoBtn"
+          data-view="iso"
+          aria-label="Toggle isometric view"
+          aria-pressed="false">
+          <span class="q-iso-icon-wrap" aria-hidden="true">
+            <svg class="ic"><use href="#i-iso"></use></svg>
+          </span>
+        </button>
+
         <div class="quick-actions" id="quickActions">
           <button type="button" class="q-btn" id="qScramble" style="--i:3">
-            <svg class="ic"><use href="#i-shuffle"/></svg><span>Scramble</span>
+            <svg class="ic"><use href="#i-shuffle"></use></svg><span>Scramble</span>
           </button>
           <button type="button" class="q-btn" id="qUndo" style="--i:2">
-            <svg class="ic"><use href="#i-undo"/></svg><span>Undo</span><kbd>Ctrl Z</kbd>
+            <svg class="ic"><use href="#i-undo"></use></svg><span>Undo</span><kbd>Ctrl Z</kbd>
           </button>
           <button type="button" class="q-btn" id="qPlay" style="--i:1">
-            <svg class="ic"><use href="#i-play"/></svg><span>Play</span>
+            <svg class="ic"><use href="#i-play"></use></svg><span>Play</span>
           </button>
           <button type="button" class="q-btn q-danger" id="qReset" style="--i:0">
-            <svg class="ic"><use href="#i-reset"/></svg><span>Reset</span>
+            <svg class="ic"><use href="#i-reset"></use></svg><span>Reset</span>
           </button>
         </div>
+
         <button type="button" class="q-fab" id="qFab" aria-expanded="false" aria-controls="quickActions" aria-label="Quick actions">
-          <svg class="ic"><use href="#i-plus"/></svg>
+          <svg class="ic"><use href="#i-plus"></use></svg>
         </button>
       </div>
     </section>
 
-    <!-- ================= CONTROL PANEL ================= -->
     <aside class="panel" id="panel" aria-label="Cube controls">
-
-      <!-- Timer -->
       <section class="module timer" id="timer" data-state="idle" aria-labelledby="h-timer">
         <header class="module-head">
           <h2 id="h-timer">Timer</h2>
@@ -152,21 +160,26 @@
         </div>
         <div class="row">
           <button type="button" class="btn btn-primary" id="timerMain">
-            <svg class="ic"><use href="#i-clock"/></svg><span id="timerMainLabel">Start inspection</span><kbd>Space</kbd>
+            <svg class="ic"><use href="#i-clock"></use></svg>
+            <span id="timerMainLabel">Start inspection</span>
+            <kbd>Space</kbd>
           </button>
           <button type="button" class="btn" id="timerReset">Clear</button>
         </div>
         <p class="hint" id="timerHint">Inspect for 15 seconds, then your first turn starts the clock. It stops when the cube is solved.</p>
       </section>
 
-      <!-- Move queue and scrub -->
       <section class="module" id="queue" aria-labelledby="h-queue">
         <header class="module-head">
           <h2 id="h-queue">Move queue</h2>
           <span class="meta" id="seqMeta">Empty</span>
           <div class="head-tools">
-            <button type="button" class="icon-btn" id="seqInvert" aria-label="Invert sequence" title="Invert sequence"><svg class="ic"><use href="#i-repeat"/></svg></button>
-            <button type="button" class="icon-btn" id="seqClear" aria-label="Clear sequence" title="Clear sequence"><svg class="ic"><use href="#i-x"/></svg></button>
+            <button type="button" class="icon-btn" id="seqInvert" aria-label="Invert sequence" title="Invert sequence">
+              <svg class="ic"><use href="#i-repeat"></use></svg>
+            </button>
+            <button type="button" class="icon-btn" id="seqClear" aria-label="Clear sequence" title="Clear sequence">
+              <svg class="ic"><use href="#i-x"></use></svg>
+            </button>
           </div>
         </header>
 
@@ -175,11 +188,21 @@
         <input class="scrub" id="scrub" type="range" min="0" max="0" value="0" step="1" aria-label="Scrub through sequence" disabled>
 
         <div class="transport">
-          <button type="button" class="t-btn" id="tStart" aria-label="Rewind to start"><svg class="ic"><use href="#i-to-start"/></svg></button>
-          <button type="button" class="t-btn" id="tBack" aria-label="Step back"><svg class="ic"><use href="#i-step-back"/></svg></button>
-          <button type="button" class="t-btn t-play" id="tPlay" aria-label="Play"><svg class="ic"><use href="#i-play"/></svg></button>
-          <button type="button" class="t-btn" id="tFwd" aria-label="Step forward"><svg class="ic"><use href="#i-step-fwd"/></svg></button>
-          <button type="button" class="t-btn" id="tEnd" aria-label="Skip to end"><svg class="ic"><use href="#i-to-end"/></svg></button>
+          <button type="button" class="t-btn" id="tStart" aria-label="Rewind to start">
+            <svg class="ic"><use href="#i-to-start"></use></svg>
+          </button>
+          <button type="button" class="t-btn" id="tBack" aria-label="Step back">
+            <svg class="ic"><use href="#i-step-back"></use></svg>
+          </button>
+          <button type="button" class="t-btn t-play" id="tPlay" aria-label="Play">
+            <svg class="ic"><use href="#i-play"></use></svg>
+          </button>
+          <button type="button" class="t-btn" id="tFwd" aria-label="Step forward">
+            <svg class="ic"><use href="#i-step-fwd"></use></svg>
+          </button>
+          <button type="button" class="t-btn" id="tEnd" aria-label="Skip to end">
+            <svg class="ic"><use href="#i-to-end"></use></svg>
+          </button>
           <div class="seg speed" id="speed" role="group" aria-label="Playback speed">
             <button type="button" data-speed="0.5">0.5x</button>
             <button type="button" data-speed="1" class="on">1x</button>
@@ -192,13 +215,15 @@
           <label for="alg-input">Run your own algorithm</label>
           <div class="alg-row">
             <input type="text" id="alg-input" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="R U R' U' F2 M x" aria-describedby="algError">
-            <button type="submit" class="btn btn-primary btn-sm"><svg class="ic"><use href="#i-play"/></svg><span>Run</span></button>
+            <button type="submit" class="btn btn-primary btn-sm">
+              <svg class="ic"><use href="#i-play"></use></svg>
+              <span>Run</span>
+            </button>
           </div>
           <p class="field-error" id="algError" role="alert"></p>
         </form>
       </section>
 
-      <!-- Algorithm library -->
       <section class="module" id="library" aria-labelledby="h-lib">
         <header class="module-head">
           <h2 id="h-lib">Algorithm library</h2>
@@ -212,32 +237,49 @@
         <p class="alg-peek" id="algPeek" aria-live="polite">Hover a chip to preview its moves.</p>
       </section>
 
-      <!-- Move pad -->
       <section class="module" id="pad" aria-labelledby="h-pad">
         <header class="module-head">
           <h2 id="h-pad">Move pad</h2>
-          <div class="seg mod" id="modSeg" role="group" aria-label="Turn direction">
-            <button type="button" data-mod="" class="on" title="Clockwise">CW</button>
-            <button type="button" data-mod="'" title="Counter-clockwise (hold Shift)">CCW</button>
-            <button type="button" data-mod="2" title="Double turn (hold Alt)">x2</button>
+
+          <div class="pad-toolbar">
+            <div class="tabs drawer-tabs" role="tablist" aria-label="Move categories">
+              <button type="button" role="tab" class="tab on" id="tab-outer" aria-label="Outer faces" title="Outer faces" aria-selected="true" aria-controls="pane" data-cat="outer">
+                <svg class="ic move-icon" aria-hidden="true"><use href="#i-front"></use></svg>
+                <span>Face</span>
+              </button>
+              <button type="button" role="tab" class="tab" id="tab-slice" aria-label="Slices" title="Slices" aria-selected="false" aria-controls="pane" data-cat="slice">
+                <svg class="ic move-icon" aria-hidden="true"><use href="#i-top"></use></svg>
+                <span>Slice</span>
+              </button>
+              <button type="button" role="tab" class="tab" id="tab-wide" aria-label="Wide moves" title="Wide moves" aria-selected="false" aria-controls="pane" data-cat="wide">
+                <svg class="ic move-icon" aria-hidden="true"><use href="#i-fit"></use></svg>
+                <span>Wide</span>
+              </button>
+              <button type="button" role="tab" class="tab" id="tab-rotation" aria-label="Rotations" title="Rotations" aria-selected="false" aria-controls="pane" data-cat="rotation">
+                <svg class="ic move-icon" aria-hidden="true"><use href="#i-iso"></use></svg>
+                <span>Rot</span>
+              </button>
+            </div>
+
+            <div class="seg mod" id="modSeg" role="group" aria-label="Turn direction">
+              <button type="button" data-mod="" class="on" aria-label="Clockwise" title="Clockwise">CW</button>
+              <button type="button" data-mod="'" aria-label="Counter-clockwise" title="Counter-clockwise">CCW</button>
+              <button type="button" data-mod="2" aria-label="Double turn" title="Double turn">2x</button>
+            </div>
           </div>
         </header>
 
-        <div class="tabs drawer-tabs" role="tablist" aria-label="Move categories">
-          <button type="button" role="tab" class="tab on" id="tab-outer" aria-selected="true" aria-controls="pane" data-cat="outer">Outer faces</button>
-          <button type="button" role="tab" class="tab" id="tab-slice" aria-selected="false" aria-controls="pane" data-cat="slice">Slices</button>
-          <button type="button" role="tab" class="tab" id="tab-wide" aria-selected="false" aria-controls="pane" data-cat="wide">Wide</button>
-          <button type="button" role="tab" class="tab" id="tab-rotation" aria-selected="false" aria-controls="pane" data-cat="rotation">Rotations</button>
-        </div>
         <div class="keys" id="pane" role="tabpanel" aria-labelledby="tab-outer"></div>
         <p class="hint" id="padHint">Hold <kbd>Shift</kbd> for prime, <kbd>Alt</kbd> for double. Wide moves use <kbd>Ctrl</kbd>.</p>
       </section>
 
-      <!-- History -->
       <section class="module" id="history" aria-labelledby="h-hist">
         <header class="module-head">
           <h2 id="h-hist">History</h2>
-          <button type="button" class="btn btn-sm" id="copyMovesBtn"><svg class="ic"><use href="#i-copy"/></svg><span>Copy</span></button>
+          <button type="button" class="btn btn-sm" id="copyMovesBtn">
+            <svg class="ic"><use href="#i-copy"></use></svg>
+            <span>Copy</span>
+          </button>
         </header>
         <div class="hist-grid">
           <div class="hist-block"><span class="hist-k">Queued</span><div id="solvingQueueList" class="history-tags"></div></div>
@@ -254,86 +296,63 @@
         </div>
         <div class="credit-links">
           <a class="social" href="https://www.instagram.com/monumeeent" target="_blank" rel="noopener noreferrer" aria-label="Instagram: @monumeeent">
-            <svg class="ic"><use href="#i-instagram"/></svg><span>@monumeeent</span>
+            <svg class="ic"><use href="#i-instagram"></use></svg>
+            <span>@monumeeent</span>
           </a>
           <a class="social" href="https://github.com/monumeeent" target="_blank" rel="noopener noreferrer" aria-label="GitHub: @monumeeent">
-            <svg class="ic"><use href="#i-github"/></svg><span>@monumeeent</span>
+            <svg class="ic"><use href="#i-github"></use></svg>
+            <span>@monumeeent</span>
           </a>
         </div>
       </footer>
     </aside>
   </div>
-  <!-- ================= MOBILE BOTTOM BAR (≤ 860px only) ================= -->
-<nav id="mobile-bottom-bar" aria-label="Mobile controls">
-  <button
-    type="button"
-    class="mbb-btn"
-    id="mbb-cfop"
-    aria-label="Open CFOP library"
-    aria-expanded="false"
-    aria-controls="cfopDrawer">
-    <svg class="ic" aria-hidden="true" focusable="false">
-      <use href="#i-iso"></use>
-    </svg>
-    <span>CFOP</span>
-  </button>
 
-  <button
-    type="button"
-    class="mbb-btn"
-    id="mbb-movepad"
-    aria-expanded="false"
-    aria-controls="panel">
-    <svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-      <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
-      <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
-      <rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
-      <rect x="14" y="14" width="7" height="7" rx="1.5"></rect>
-    </svg>
-    <span>Moves</span>
-  </button>
+  <nav id="mobile-bottom-bar" aria-label="Mobile controls">
+    <button type="button" class="mbb-btn" id="mbb-cfop" aria-label="Open CFOP library" aria-expanded="false" aria-controls="cfopDrawer">
+      <svg class="ic" aria-hidden="true" focusable="false"><use href="#i-iso"></use></svg>
+      <span>CFOP</span>
+    </button>
 
-  <button
-    type="button"
-    class="mbb-btn"
-    id="mbb-menu"
-    aria-expanded="false"
-    aria-controls="panel">
-    <svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-      <line x1="4" y1="21" x2="4" y2="14"></line>
-      <line x1="4" y1="10" x2="4" y2="3"></line>
-      <line x1="12" y1="21" x2="12" y2="12"></line>
-      <line x1="12" y1="8" x2="12" y2="3"></line>
-      <line x1="20" y1="21" x2="20" y2="16"></line>
-      <line x1="20" y1="12" x2="20" y2="3"></line>
-    </svg>
-    <span>Menu</span>
-  </button>
-</nav>
-  
-  
+    <button type="button" class="mbb-btn" id="mbb-movepad" aria-expanded="false" aria-controls="panel">
+      <svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
+        <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
+        <rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
+        <rect x="14" y="14" width="7" height="7" rx="1.5"></rect>
+      </svg>
+      <span>Moves</span>
+    </button>
 
-<!-- Core 3D & Control Scripts -->
+    <button type="button" class="mbb-btn" id="mbb-menu" aria-expanded="false" aria-controls="panel">
+      <svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <line x1="4" y1="21" x2="4" y2="14"></line>
+        <line x1="4" y1="10" x2="4" y2="3"></line>
+        <line x1="12" y1="21" x2="12" y2="12"></line>
+        <line x1="12" y1="8" x2="12" y2="3"></line>
+        <line x1="20" y1="21" x2="20" y2="16"></line>
+        <line x1="20" y1="12" x2="20" y2="3"></line>
+      </svg>
+      <span>Menu</span>
+    </button>
+  </nav>
 
-  
-<script src="js/notation.js"></script>
-<script src="js/cube.js"></script>
-<script src="js/controls.js"></script>
-<script src="js/hotkeys.js"></script>
-<script src="js/drag.js"></script>
-<script src="js/main.js"></script>
-<script src="js/ui.js"></script>
+  <script src="js/notation.js"></script>
+  <script src="js/cube.js"></script>
+  <script src="js/controls.js"></script>
+  <script src="js/hotkeys.js"></script>
+  <script src="js/drag.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/ui.js"></script>
 
-  <!-- CFOP Drawer Modules (Must load in this order) -->  
   <script src="cfop/f2l-oll-data.js"></script>
-<script src="cfop/pll-data.js"></script>
-<script src="cfop/wv-data.js"></script>
+  <script src="cfop/pll-data.js"></script>
+  <script src="cfop/wv-data.js"></script>
 
-<script src="cfop/f2l-renderer.js"></script>
-<script src="cfop/pll-renderer.js"></script>
-<script src="cfop/oll-renderer.js"></script>
-<script src="cfop/wv-renderer.js"></script>
-<script src="cfop/cfop-drawer.js"></script>
- 
+  <script src="cfop/f2l-renderer.js"></script>
+  <script src="cfop/pll-renderer.js"></script>
+  <script src="cfop/oll-renderer.js"></script>
+  <script src="cfop/wv-renderer.js"></script>
+  <script src="cfop/cfop-drawer.js"></script>
 </body>
 </html>
