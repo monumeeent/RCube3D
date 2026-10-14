@@ -16,6 +16,7 @@
   <link rel="stylesheet" href="css/style2.css">
   <link rel="stylesheet" href="css/watermark.css">
   <link rel="stylesheet" href="css/style3.css">
+<link rel="stylesheet" href="css/mobile.css">
 
   <!-- External Dependencies -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -262,6 +263,55 @@
       </footer>
     </aside>
   </div>
+  <!-- ================= MOBILE BOTTOM BAR (≤ 860px only) ================= -->
+<nav id="mobile-bottom-bar" aria-label="Mobile controls">
+  <button
+    type="button"
+    class="mbb-btn"
+    id="mbb-cfop"
+    aria-label="Open CFOP library"
+    aria-expanded="false"
+    aria-controls="cfopDrawer">
+    <svg class="ic" aria-hidden="true" focusable="false">
+      <use href="#i-iso"></use>
+    </svg>
+    <span>CFOP</span>
+  </button>
+
+  <button
+    type="button"
+    class="mbb-btn"
+    id="mbb-movepad"
+    aria-expanded="false"
+    aria-controls="panel">
+    <svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
+      <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
+      <rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
+      <rect x="14" y="14" width="7" height="7" rx="1.5"></rect>
+    </svg>
+    <span>Moves</span>
+  </button>
+
+  <button
+    type="button"
+    class="mbb-btn"
+    id="mbb-menu"
+    aria-expanded="false"
+    aria-controls="panel">
+    <svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <line x1="4" y1="21" x2="4" y2="14"></line>
+      <line x1="4" y1="10" x2="4" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="12"></line>
+      <line x1="12" y1="8" x2="12" y2="3"></line>
+      <line x1="20" y1="21" x2="20" y2="16"></line>
+      <line x1="20" y1="12" x2="20" y2="3"></line>
+    </svg>
+    <span>Menu</span>
+  </button>
+</nav>
+  
+  
 
 <!-- Core 3D & Control Scripts -->
 
@@ -284,5 +334,6 @@
 <script src="cfop/oll-renderer.js"></script>
 <script src="cfop/wv-renderer.js"></script>
 <script src="cfop/cfop-drawer.js"></script>
+ 
 </body>
 </html>

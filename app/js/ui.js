@@ -11,6 +11,7 @@
   const $ = id => document.getElementById(id);
   const reduceMotion = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
   const status = (msg, isError = false) => window.reportCubeStatus?.(msg, isError);
+  const isNarrow = () => window.matchMedia('(max-width: 860px)').matches;
   const isTyping = t => t instanceof Element && (t.isContentEditable || t.closest('input, textarea, select'));
 
   const store = {
@@ -83,18 +84,139 @@
   const app = document.querySelector('.app');
   const panelEl = $('panel');
   const panelBtn = $('panelToggle');
-  function setPanel(open) {
+  const mobileMenuBtn = $('mbb-menu');
+  const mobileMoveBtn = $('mbb-movepad');
+
+  function setPanel(open, mode = null) {
+    const menuOnly = open && mode === 'menu';
+    const padOnly = open && mode === 'moves';
+
+    panelEl.classList.toggle('mobile-menu-only', menuOnly);
+    panelEl.classList.toggle('mobile-pad-only', padOnly);
     app.classList.toggle('panel-collapsed', !open);
+
     panelBtn.setAttribute('aria-expanded', String(open));
     panelBtn.setAttribute('aria-label', open ? 'Collapse sidebar' : 'Expand sidebar');
     panelBtn.title = open ? 'Hide controls ( \\ )' : 'Show controls ( \\ )';
-    if (open) panelEl.removeAttribute('inert');
-    else { panelEl.setAttribute('inert', ''); focusCube(); }
-    prefs.panel = open;
+
+    mobileMenuBtn.setAttribute('aria-expanded', String(menuOnly));
+    mobileMenuBtn.classList.toggle('is-live', menuOnly);
+
+    mobileMoveBtn.setAttribute('aria-expanded', String(padOnly));
+    mobileMoveBtn.setAttribute('aria-controls', 'panel');
+    mobileMoveBtn.classList.toggle('is-live', padOnly);
+
+    if (open) {
+      panelEl.removeAttribute('inert');
+    } else {
+      panelEl.setAttribute('inert', '');
+      focusCube();
+    }
+
+    if (!isNarrow()) {
+      prefs.panel = open;
+      savePrefs();
+    }
+  }
+
+  function revealPanelModule(id) {
+    const mod = $(id);
+    if (!mod) return;
+
+    if (mod.classList.contains('is-collapsed')) {
+      setModule(mod, true);
+      prefs.collapsed = [...document.querySelectorAll('.module.is-collapsed')]
+        .map(module => module.id);
+      savePrefs();
+    }
+
+    const reduced = reduceMotion();
+    window.setTimeout(() => {
+      mod.scrollIntoView({
+        block: 'start',
+        behavior: reduced ? 'auto' : 'smooth'
+      });
+    }, reduced ? 0 : 300);
+  }
+
+  function closeCfopDrawer() {
+    document
+      .querySelector('.cfop-sidebar.drawer-visible .cfop-drawer-close')
+      ?.click();
+  }
+
+  function toggleMobilePanel(mode) {
+    const modeClass = mode === 'moves'
+      ? 'mobile-pad-only'
+      : 'mobile-menu-only';
+
+    const alreadyOpen =
+      !app.classList.contains('panel-collapsed') &&
+      panelEl.classList.contains(modeClass);
+
+    // Tapping the active button closes its sheet.
+    if (alreadyOpen) {
+      setPanel(false);
+      return;
+    }
+
+    // Opening Menu or Moves closes CFOP first.
+    closeCfopDrawer();
+    setPanel(true, mode);
+
+    if (mode === 'moves') revealPanelModule('pad');
+  }
+
+  panelBtn.addEventListener('click', () => {
+    if (isNarrow()) {
+      toggleMobilePanel('menu');
+      return;
+    }
+
+    const open = app.classList.contains('panel-collapsed');
+    setPanel(open, open ? 'menu' : null);
+  });
+
+  mobileMenuBtn.addEventListener('click', () => toggleMobilePanel('menu'));
+  mobileMoveBtn.addEventListener('click', () => toggleMobilePanel('moves'));
+
+  // Opening CFOP from the bottom button or rail closes Menu or Moves.
+  document.addEventListener('click', e => {
+    if (!isNarrow() || !(e.target instanceof Element)) return;
+
+    if (e.target.closest('#mbb-cfop, '.concat('.cfop-rail-btn'))) {
+      if (!app.classList.contains('panel-collapsed')) {
+        setPanel(false);
+      }
+    }
+  });
+
+  if (isNarrow() || prefs.panel === false) setPanel(false);
+  
+  
+  function showPanelModule(id) {
+  const mod = $(id);
+  if (!mod) return;
+
+  if (app.classList.contains('panel-collapsed')) setPanel(true);
+
+  if (mod.classList.contains('is-collapsed')) {
+    setModule(mod, true);
+    prefs.collapsed = [...document.querySelectorAll('.module.is-collapsed')]
+      .map(module => module.id);
     savePrefs();
   }
-  panelBtn.addEventListener('click', () => setPanel(app.classList.contains('panel-collapsed')));
-  if (prefs.panel === false) setPanel(false);
+
+  const reduced = reduceMotion();
+  window.setTimeout(
+    () => mod.scrollIntoView({
+      block: 'start',
+      behavior: reduced ? 'auto' : 'smooth'
+    }),
+    reduced ? 0 : 300
+  );
+}
+
 
   // After a mouse or touch interaction, hand focus back to the cube so hotkeys apply.
   // Keyboard activation (detail 0) is left alone so keyboard users keep their place.
@@ -456,26 +578,29 @@
     $('qPlay').disabled = !len;
   }
 
-  function setPlaying(on) {
-    seq.playing = on;
-    const icon = on ? '#i-pause' : '#i-play';
-    $('tPlay').querySelector('use').setAttribute('href', icon);
-    $('tPlay').setAttribute('aria-label', on ? 'Pause' : 'Play');
-    $('qPlay').querySelector('use').setAttribute('href', icon);
-    $('qPlay').querySelector('span').textContent = on ? 'Pause' : 'Play';
-    $('qPlay').classList.toggle('is-on', on);
-    if (on) requestAnimationFrame(playLoop);
-  }
+  let playRaf = 0;
 
-  function playLoop() {
-    if (!seq.playing) return;
-    if (seq.cursor >= seq.tokens.length) {
-      if (window.getPendingMoveCount() === 0) setPlaying(false);
-    } else if (window.getPendingMoveCount() === 0) {
-      advanceTo(seq.cursor + 1);
-    }
-    requestAnimationFrame(playLoop);
+function setPlaying(on) {
+  seq.playing = on;
+  const icon = on ? '#i-pause' : '#i-play';
+  $('tPlay').querySelector('use').setAttribute('href', icon);
+  $('tPlay').setAttribute('aria-label', on ? 'Pause' : 'Play');
+  $('qPlay').querySelector('use').setAttribute('href', icon);
+  $('qPlay').querySelector('span').textContent = on ? 'Pause' : 'Play';
+  $('qPlay').classList.toggle('is-on', on);
+  cancelAnimationFrame(playRaf);
+  if (on) playRaf = requestAnimationFrame(playLoop);
+}
+
+function playLoop() {
+  if (!seq.playing) return;
+  if (seq.cursor >= seq.tokens.length) {
+    if (window.getPendingMoveCount() === 0) { setPlaying(false); return; }
+  } else if (window.getPendingMoveCount() === 0) {
+    advanceTo(seq.cursor + 1);
   }
+  playRaf = requestAnimationFrame(playLoop);
+}
 
   function togglePlay() {
     if (!seq.tokens.length) { status('Nothing to play yet.'); return; }

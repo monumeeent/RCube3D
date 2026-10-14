@@ -137,18 +137,36 @@
     closeBtn.innerHTML = '<svg class="ic" aria-hidden="true"><use href="#i-x"/></svg>';
     closeBtn.addEventListener('click', closeDrawer);
     drawerHead.appendChild(closeBtn);
-
-    // Keyboard: [ to toggle, Escape to close
-    window.addEventListener('keydown', e => {
-      if (e.isComposing) return;
-      if (e.key === '[' && !e.ctrlKey && !e.metaKey) {
-        e.preventDefault();
-        if (drawerOpen) closeDrawer(); else if (activeSet) openDrawer();
-        return;
-      }
-      if (e.key === 'Escape' && drawerOpen) closeDrawer();
-    });
+	const mobileCfopButton = document.getElementById('mbb-cfop');
+if (mobileCfopButton) {
+  mobileCfopButton.setAttribute('aria-controls', 'cfopDrawer');
+  mobileCfopButton.addEventListener('click', toggleMobileDrawer);
+}
+syncMobileCfopButton();
+document.addEventListener('mobile:sheet-open', e => {
+  if (
+    window.matchMedia('(max-width: 860px)').matches &&
+    e.detail?.sheet !== 'cfop' &&
+    drawerOpen
+  ) {
+    closeDrawer();
   }
+});
+    document.dispatchEvent(new Event('cfop:ready'));
+  }
+
+  // b. Replace the [ / Escape keydown handler with a version that ignores [ while typing:
+  window.addEventListener('keydown', e => {
+    if (e.isComposing) return;
+    const typing = e.target instanceof Element &&
+      e.target.closest('input, textarea, select, [contenteditable="true"]');
+    if (e.key === '[' && !e.ctrlKey && !e.metaKey && !typing) {
+      e.preventDefault();
+      if (drawerOpen) closeDrawer(); else if (activeSet) openDrawer();
+      return;
+    }
+    if (e.key === 'Escape' && drawerOpen) closeDrawer();
+  });
 
   // ── State helpers ──────────────────────────────────────────────────────
   function toggleSet(key) {
@@ -160,15 +178,38 @@
     openDrawer();
     saveState();
   }
-
-  function triggerCanvasResize() {
-    let start = performance.now();
-    function loop(now) {
-      window.dispatchEvent(new Event('resize'));
-      if (now - start < 400) requestAnimationFrame(loop);
-    }
-    requestAnimationFrame(loop);
+  
+  function toggleMobileDrawer() {
+  if (drawerOpen) {
+    closeDrawer();
+    return;
   }
+
+  if (!activeSet || !window.CFOP_DATA[activeSet]) {
+    activeSet = window.CFOP_DATA.f2l
+      ? 'f2l'
+      : Object.keys(window.CFOP_DATA)[0];
+  }
+
+  if (!activeSet) return;
+
+  renderDrawer();
+  updateRail();
+  openDrawer();
+}
+
+function syncMobileCfopButton() {
+  const button = document.getElementById('mbb-cfop');
+  if (!button) return;
+
+  button.setAttribute('aria-controls', 'cfopDrawer');
+  button.setAttribute('aria-expanded', String(drawerOpen));
+  button.setAttribute(
+    'aria-label',
+    drawerOpen ? 'Close CFOP library' : 'Open CFOP library'
+  );
+  button.classList.toggle('is-live', drawerOpen);
+}
 
   function openDrawer() {
     drawerOpen = true;
@@ -176,9 +217,14 @@
     const sidebar = document.querySelector('.cfop-sidebar');
     drawer?.classList.add('is-open');
     sidebar?.classList.add('drawer-visible');
-    
-    triggerCanvasResize();
+    if (window.matchMedia('(max-width: 860px)').matches) {
+  document.dispatchEvent(new CustomEvent('mobile:sheet-open', {
+    detail: { sheet: 'cfop' }
+  }));
+}
+	
     saveState();
+	syncMobileCfopButton()
   }
 
   function closeDrawer() {
@@ -188,8 +234,8 @@
     drawer?.classList.remove('is-open');
     sidebar?.classList.remove('drawer-visible');
 
-    triggerCanvasResize();
     saveState();
+	syncMobileCfopButton()
   }
 
   function updateRail() {
@@ -197,6 +243,44 @@
       btn.classList.toggle('is-active', btn.dataset.set === activeSet && drawerOpen);
     });
   }
+
+  // ── Collapse/Expand All: label and accessible name ─────────────────────
+  // allExpanded = true means the next click collapses everything.
+  function setCollapseAllState(btn, allExpanded) {
+    btn.textContent = allExpanded ? 'Collapse All' : 'Expand All';
+    btn.setAttribute(
+      'aria-label',
+      allExpanded ? 'Collapse all sections' : 'Expand all sections'
+    );
+  }
+
+  // Recomputes the button from the DOM, so single-section toggles also update it.
+  function syncCollapseAllButton() {
+    const btn = document.querySelector('#cfopDrawerHead .cfop-collapse-all-btn');
+    const list = document.getElementById('cfopCardList');
+    if (!btn || !list) return;
+    const toggles = [...list.querySelectorAll('.cfop-drawer-toggle')];
+    const allExpanded = toggles.length > 0 &&
+      toggles.every(b => b.getAttribute('aria-expanded') === 'true');
+    setCollapseAllState(btn, allExpanded);
+  }
+
+  // One delegated listener on the list. It survives re-renders, so bind only once.
+  let collapseSyncBound = false;
+  function bindCollapseAllSync() {
+    if (collapseSyncBound) return;
+    const list = document.getElementById('cfopCardList');
+    if (!list) return;
+    collapseSyncBound = true;
+    // The section toggle's own handler runs first (target phase), then this bubbles up.
+    list.addEventListener('click', e => {
+      if (e.target instanceof Element && e.target.closest('.cfop-drawer-toggle')) {
+        syncCollapseAllButton();
+      }
+    });
+  }
+
+
 
   // ── Render drawer content ──────────────────────────────────────────────
   function renderDrawer() {
@@ -219,19 +303,20 @@
       const collapseAllBtn = document.createElement('button');
       collapseAllBtn.type = 'button';
       collapseAllBtn.className = 'cfop-collapse-all-btn';
-      collapseAllBtn.setAttribute('aria-label', 'Collapse all sections');
-      collapseAllBtn.textContent = 'Collapse All';
+      setCollapseAllState(collapseAllBtn, true); // sections start expanded
       collapseAllBtn.addEventListener('click', () => {
         const list = document.getElementById('cfopCardList');
         if (!list) return;
-        const allExpanded = [...list.querySelectorAll('.cfop-drawer-toggle')].every(b => b.getAttribute('aria-expanded') === 'true');
+        const toggles = [...list.querySelectorAll('.cfop-drawer-toggle')];
+        const allExpanded = toggles.length > 0 &&
+          toggles.every(b => b.getAttribute('aria-expanded') === 'true');
         const targetExpanded = !allExpanded;
-        list.querySelectorAll('.cfop-drawer-toggle').forEach(b => b.setAttribute('aria-expanded', targetExpanded));
+        toggles.forEach(b => b.setAttribute('aria-expanded', String(targetExpanded)));
         list.querySelectorAll('.cfop-drawer-section-body').forEach(body => {
           body.classList.toggle('is-expanded', targetExpanded);
           body.classList.toggle('is-collapsed', !targetExpanded);
         });
-        collapseAllBtn.textContent = targetExpanded ? 'Collapse All' : 'Expand All';
+        syncCollapseAllButton();
       });
 
       head.appendChild(title);
@@ -241,8 +326,12 @@
     }
 
     renderCards();
+    bindCollapseAllSync();
+    syncCollapseAllButton();
   }
-
+  
+  
+  
   function renderCards() {
     const setData = window.CFOP_DATA[activeSet];
     if (!setData) return;
@@ -475,12 +564,15 @@
       }
     }
 
+    // On phones the sheet covers the cube. Close it so the run is visible.
+    if (window.matchMedia('(max-width: 860px)').matches) closeDrawer();
+
     window.reportCubeStatus?.(
       isSetup ? `Loaded setup for ${caseName}.` : `Running ${caseName}.`
     );
   }
 
-  // ── Execute & Copy ─────────────────────────────────────────────────────
+  // ── Execute & Copy ────────────────────────────────────────────────     
   async function copyAlgorithm(caseData, btn) {
     try {
       if (navigator.clipboard && window.isSecureContext) {

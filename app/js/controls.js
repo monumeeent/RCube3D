@@ -236,19 +236,17 @@ function recordExecutedMove(token, kind = 'solving', tag = null) {
       return;
     }
 
-    const tokens = window.CubeNotation.parseAlgorithm(raw, MAX_ALGORITHM_LENGTH);
-enqueueMoves(tokens);
-
     try {
-      // Validate the complete algorithm before adding any moves to the queue.
-      const moves = tokens.map(parseMove);
-      enqueueMoves(moves.map(move => move.token));
+      // Parse and validate the whole algorithm before queueing anything.
+      const tokens = window.CubeNotation.parseAlgorithm(raw, MAX_ALGORITHM_LENGTH);
 
-      reportStatus(
-        moves.length
-          ? `Queued ${moves.length} move${moves.length === 1 ? '' : 's'}.`
-          : 'Enter an algorithm first.'
-      );
+      if (tokens.length === 0) {
+        reportStatus('Enter an algorithm first.');
+        return;
+      }
+
+      enqueueMoves(tokens);
+      reportStatus(`Queued ${tokens.length} move${tokens.length === 1 ? '' : 's'}.`);
     } catch (error) {
       reportStatus(error.message, true);
     }
