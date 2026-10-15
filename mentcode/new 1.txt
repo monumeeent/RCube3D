@@ -4,17 +4,10 @@ Next Idea for RCube3D
 > if i hold then realease it starts the timer. 
 > The Cube Also Gets Solved . slowly 0.5x
 
-
 > Make the Cube Learn to Solve itself using CFOP 
 
 Fix Needed :
 when ISO is toggled to off 
 do not go to any specific view . stay where the camera is . no change in camera position . 
-Fix SVG position manual 
-
-Cfop library minamal space
 
 
-I recommend moving it to the end of the horizontal CFOP set rail, after WV, as a compact SVG icon button. That keeps “Collapse All” visible on mobile even when the drawer header is hidden.
-
-instead i want you to add that small arrow bottom faced > icon below the active PLL?OLL?F2L button pop/floating just below no extra space . 

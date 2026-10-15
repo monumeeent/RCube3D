@@ -785,6 +785,15 @@
     height: 17px;
   }
 
+  /* Collapse-all rail button — sits at the trailing end of the horizontal rail */
+  .cfop-collapse-rail-btn {
+    flex: 0 0 44px;
+    width: 44px;
+    height: 44px;
+    margin-top: 0;
+    margin-left: auto;
+  }
+
   /* ==========================================================================
      07. COMPACT MOVE PAD
      ========================================================================== */
@@ -1040,17 +1049,8 @@
     overflow-x: hidden;
     overflow-y: auto;
   }
-}
-
-#panel.mobile-pad-only #pad {
-  display: flex;
-  flex-direction: column;
-}
-
-#panel.mobile-pad-only #pad > .module-head {
-  order: 2;
-}
-
-#panel.mobile-pad-only #pad > .module-pad {
-  order: 1;
+  #cfopDrawerHead {
+    display: none;
+  }
+  
 }

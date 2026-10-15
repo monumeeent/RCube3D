@@ -98,6 +98,32 @@
       rail.appendChild(btn);
     });
     
+    // Collapse-all icon button — shown in the rail when the drawer is open
+    const collapseRailBtn = document.createElement('button');
+    collapseRailBtn.type = 'button';
+    collapseRailBtn.className = 'cfop-collapse-rail-btn';
+    collapseRailBtn.id = 'cfopCollapseRailBtn';
+    collapseRailBtn.setAttribute('aria-label', 'Collapse all sections');
+    collapseRailBtn.setAttribute('title', 'Collapse All');
+    collapseRailBtn.innerHTML =
+      '<svg class="ic" aria-hidden="true"><use href="#i-chev-d"></use></svg>';
+    collapseRailBtn.hidden = true;
+    collapseRailBtn.addEventListener('click', () => {
+      const list = document.getElementById('cfopCardList');
+      if (!list) return;
+      const toggles = [...list.querySelectorAll('.cfop-drawer-toggle')];
+      const allExpanded = toggles.length > 0 &&
+        toggles.every(b => b.getAttribute('aria-expanded') === 'true');
+      const target = !allExpanded;
+      toggles.forEach(b => b.setAttribute('aria-expanded', String(target)));
+      list.querySelectorAll('.cfop-drawer-section-body').forEach(body => {
+        body.classList.toggle('is-expanded', target);
+        body.classList.toggle('is-collapsed', !target);
+      });
+      syncCollapseRailBtn();
+    });
+    rail.appendChild(collapseRailBtn);
+
     // Append Watermark to the bottom of the rail
     const watermarkWrap = document.createElement('div');
     watermarkWrap.className = 'cfop-watermark-wrap';
@@ -221,6 +247,10 @@ function syncMobileCfopButton() {
   sidebar?.classList.add('drawer-visible');
   root?.classList.add('cfop-open');
 
+  const collapseRailBtn = document.getElementById('cfopCollapseRailBtn');
+  if (collapseRailBtn) collapseRailBtn.hidden = false;
+  syncCollapseRailBtn();
+
   if (window.matchMedia('(max-width: 860px)').matches) {
     document.dispatchEvent(new CustomEvent('mobile:sheet-open', {
       detail: { sheet: 'cfop' }
@@ -240,6 +270,9 @@ function syncMobileCfopButton() {
   drawer?.classList.remove('is-open');
   sidebar?.classList.remove('drawer-visible');
   root?.classList.remove('cfop-open');
+
+  const collapseRailBtn = document.getElementById('cfopCollapseRailBtn');
+  if (collapseRailBtn) collapseRailBtn.hidden = true;
 
   saveState();
   syncMobileCfopButton();
@@ -263,13 +296,19 @@ function syncMobileCfopButton() {
 
   // Recomputes the button from the DOM, so single-section toggles also update it.
   function syncCollapseAllButton() {
-    const btn = document.querySelector('#cfopDrawerHead .cfop-collapse-all-btn');
+    syncCollapseRailBtn();
+  }
+
+  function syncCollapseRailBtn() {
+    const btn = document.getElementById('cfopCollapseRailBtn');
+    if (!btn) return;
     const list = document.getElementById('cfopCardList');
-    if (!btn || !list) return;
-    const toggles = [...list.querySelectorAll('.cfop-drawer-toggle')];
+    const toggles = list ? [...list.querySelectorAll('.cfop-drawer-toggle')] : [];
     const allExpanded = toggles.length > 0 &&
       toggles.every(b => b.getAttribute('aria-expanded') === 'true');
-    setCollapseAllState(btn, allExpanded);
+    btn.setAttribute('aria-label', allExpanded ? 'Collapse all sections' : 'Expand all sections');
+    btn.setAttribute('title', allExpanded ? 'Collapse All' : 'Expand All');
+    btn.classList.toggle('is-all-expanded', allExpanded);
   }
 
   // One delegated listener on the list. It survives re-renders, so bind only once.
@@ -328,7 +367,6 @@ function syncMobileCfopButton() {
 
       head.appendChild(title);
       head.appendChild(count);
-      head.appendChild(collapseAllBtn);
       if (closeBtn) head.appendChild(closeBtn);
     }
 
