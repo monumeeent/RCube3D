@@ -1,12 +1,13 @@
 # Project Codebase Registry (`mentcode/mentC.md`)
-> **Last Updated:** Not recorded — compiled from the files supplied in this session  
-> **Active Version:** v1.0  
-> **Registry Status:** Source snapshot documented; filesystem and runtime behavior not independently verified.
-> **Update mentC:** If You Read This File Dont Forget to Update This File After Some Activity Accrodingly.
-> **Asking Files:** If You Are Going for any change or Update . Ask for the files connected to it first . So you understand the recent Logic .
-> **File Split:** If any File is getting much line and longer(700lines) and has different purposes . Split Them into separate file accrodingly(300-400 LInes)
 
-## 🌳 1. File Tree & Directory Structure
+> **Last Updated:** Date not recorded. Updated from the source and changes discussed in this session.
+> **Active Version:** v1.2
+> **Registry Status:** Based on files and snippets supplied in this session. The repository and final runtime state have not been independently inspected.
+> **Update mentC:** Update this file after project changes.
+> **Connected Files:** Before changing a feature, review its connected files so the current logic is understood.
+> **File Split:** When a file exceeds roughly 700 lines and contains separate responsibilities, consider splitting it into focused files of about 300-400 lines.
+
+## 1. File Tree
 
 ```text
 RCube3D/
@@ -18,8 +19,8 @@ RCube3D/
 │   ├── style2.css
 │   ├── style3.css
 │   ├── watermark.css
-│   └── mobile.css       ← Mobile bottom bar, responsive layout, sheet styling
-│ 
+│   └── mobile.css
+│
 ├── js/
 │   ├── notation.js
 │   ├── cube.js
@@ -28,7 +29,6 @@ RCube3D/
 │   ├── drag.js
 │   ├── main.js
 │   └── ui.js
-│   
 │
 ├── cfop/
 │   ├── f2l-oll-data.js
@@ -51,53 +51,55 @@ RCube3D/
     └── mentC.md
 ```
 
-## 🔗 2. File Connections & Function Map
+**Mobile script note:** There is no `js/mobile.js` or `cfop/mobile.js` in the current supplied tree. Mobile panel behavior is implemented in `js/ui.js`, `cfop/cfop-drawer.js`, and `css/mobile.css`.
+
+## 2. File Connections and Responsibilities
 
 ### Application JavaScript
 
-| File Path & Name | Connected Files | Core Functions / Exports | Purpose / Description |
+| File | Connected files | Core functions and exports | Responsibility |
 | :--- | :--- | :--- | :--- |
-| `js/notation.js` | `js/controls.js`, `js/ui.js`, `cfop/cfop-drawer.js`, CFOP renderers, `tests/regression.js` | `normalizeToken()`, `parseAlgorithm()`, `invertToken()`, `invertAlgorithm()`; exports `window.CubeNotation` and `window.CubeNotation.TOKEN` | Shared move notation parser, normalizer, and inverter. |
-| `js/cube.js` | `js/main.js`, `js/controls.js`, `js/ui.js`, `tests/regression.js` | `window.RubiksCube`: `init()`, `executeMove()`, `rebuildCube()`, `isSolved()`, `getStateSnapshot()`, `setTurnDuration()` | Creates and animates Three.js cube cubies; tracks cube state and X-ray mode. |
-| `js/controls.js` | `js/notation.js`, `js/cube.js`, `js/main.js`, `js/hotkeys.js`, `js/ui.js`, `cfop/cfop-drawer.js` | Exports `queueMove()`, `enqueueCubeMoves()`, `takeNextMove()`, `clearMoveQueue()`, `getTurnParameters()`, `undoCubeMove()`, `scrambleCube()`, `resetCube()`, `recordExecutedMove()` and status/history helpers | Move queue, move parameters, undo, scramble, history, and cube-control APIs. |
-| `js/main.js` | `index.html`, `js/cube.js`, `js/controls.js`, Three.js and OrbitControls | `init()`, `resizeRenderer()`, `processQueue()`, `setCameraView()`, `getClosestFace()`, `snapCameraToClosestFace()` | Initializes the Three.js scene and camera, runs the render/move loop, and exposes cube status and camera helpers. |
-| `js/ui.js` | `index.html`, `js/controls.js`, `js/cube.js`, `js/main.js`, `js/notation.js` | Builds and manages the control-panel UI, move pad, timer, sequence playback, algorithm input, camera presets, quick actions, X-ray mode, and mobile Menu/Moves panel behavior. || `js/hotkeys.js` | `js/controls.js`, `js/ui.js` | Private `handleKeyDown()`; calls `queueMove()` and `undoCubeMove()` | Maps keyboard move bindings and Ctrl+Z to cube actions. |
+| `js/notation.js` | `js/controls.js`, `js/ui.js`, `cfop/cfop-drawer.js`, CFOP renderers, `tests/regression.js` | `normalizeToken()`, `parseAlgorithm()`, `invertToken()`, `invertAlgorithm()`; exports `window.CubeNotation` and `window.CubeNotation.TOKEN` | Shared move-notation parsing, normalization, and inversion. |
+| `js/cube.js` | `js/main.js`, `js/controls.js`, `js/ui.js`, `tests/regression.js` | `window.RubiksCube`: `init()`, `executeMove()`, `rebuildCube()`, `isSolved()`, `getStateSnapshot()`, `setTurnDuration()` | Creates and animates Three.js cubies; tracks cube state and X-ray mode. |
+| `js/controls.js` | `js/notation.js`, `js/cube.js`, `js/main.js`, `js/hotkeys.js`, `js/ui.js`, `cfop/cfop-drawer.js` | `queueMove()`, `enqueueCubeMoves()`, `takeNextMove()`, `clearMoveQueue()`, `getTurnParameters()`, `undoCubeMove()`, `scrambleCube()`, `resetCube()`, `recordExecutedMove()` and status/history helpers | Move queue, move parameters, undo, scramble, history, and cube-control APIs. |
+| `js/main.js` | `index.html`, `js/cube.js`, `js/controls.js`, Three.js and OrbitControls | `init()`, `resizeRenderer()`, `processQueue()`, `setCameraView()`, `getClosestFace()`, `snapCameraToClosestFace()` | Initializes the Three.js scene, camera, renderer, and animation loop. The supplied version observes `#canvas-container` with `ResizeObserver` and updates renderer size and camera aspect when the container changes size. |
+| `js/ui.js` | `index.html`, `js/controls.js`, `js/cube.js`, `js/main.js`, `js/notation.js` | Builds the collapsible module wrappers; manages timer, move pad, queue playback, algorithm input, camera presets, quick actions, X-ray, and mobile Menu/Moves panel behavior | Main application UI logic. Mobile navigation uses `#mbb-menu` and `#mbb-movepad` through `setPanel()` and `toggleMobilePanel()`. |
+| `js/hotkeys.js` | `js/controls.js`, `js/ui.js` | Private `handleKeyDown()`; calls `queueMove()` and `undoCubeMove()` | Maps keyboard move bindings and Ctrl+Z to cube actions. |
 | `js/drag.js` | `index.html`, `.single-control-bar`, `.drawer-tabs` | DOM-ready drag-to-scroll listeners | Adds mouse drag scrolling to selected horizontal controls. |
 
 ### CFOP Data, Renderers, and Drawer
 
-| File Path & Name | Connected Files | Core Functions / Exports | Purpose / Description |
+| File | Connected files | Core functions and exports | Responsibility |
 | :--- | :--- | :--- | :--- |
-| `cfop/f2l-oll-data.js` | `index.html`, `cfop/cfop-drawer.js`, CFOP renderers | Defines `window.CFOP_DATA` with `f2l` and `oll` sets | F2L and OLL algorithms grouped into categories and cases. |
-| `cfop/pll-data.js` | `index.html`, `cfop/f2l-oll-data.js`, `cfop/cfop-drawer.js` | Defines `window.PLL_DATA`; appends it to `window.CFOP_DATA.pll` when master data exists | PLL algorithms and their category groupings. |
-| `cfop/wv-data.js` | `index.html`, `cfop/f2l-oll-data.js`, `cfop/cfop-drawer.js` | Defines `window.WV_DATA`; adds it to `window.CFOP_DATA.wv` | Winter Variation algorithms and their category groupings. |
+| `cfop/f2l-oll-data.js` | `index.html`, `cfop/cfop-drawer.js`, CFOP renderers | Defines `window.CFOP_DATA` with F2L and OLL sets | F2L and OLL algorithms grouped into categories and cases. |
+| `cfop/pll-data.js` | `index.html`, `cfop/f2l-oll-data.js`, `cfop/cfop-drawer.js` | Defines `window.PLL_DATA`; appends PLL data to `window.CFOP_DATA` when available | PLL algorithms and category groupings. |
+| `cfop/wv-data.js` | `index.html`, `cfop/f2l-oll-data.js`, `cfop/cfop-drawer.js` | Defines `window.WV_DATA`; adds WV data to `window.CFOP_DATA` | Winter Variation algorithms and category groupings. |
 | `cfop/f2l-renderer.js` | `index.html`, `cfop/cfop-drawer.js`, `js/notation.js` | `F2lSVG.buildSVG()`, `buildIsometricDiagram()`, `getInverseReverseAlg()`; exports `window.F2lSVG` and legacy `window.CfopSVG` | Simulates moves and creates isometric F2L case diagrams. |
-| `cfop/oll-renderer.js` | `index.html`, `cfop/cfop-drawer.js`, `js/notation.js` | `OllSVG.buildOllSVG()`, `simulateOll()`; exports `window.OllSVG` | Simulates the inverse of OLL algorithms to render top-down orientation diagrams. |
-| `cfop/pll-renderer.js` | `index.html`, `cfop/cfop-drawer.js`, `js/notation.js` | `PllSVG.buildPllSVG()`, `simulatePll()`; exports `window.PllSVG` | Simulates PLL permutations and renders a top-view diagram with piece movement arrows. |
-| `cfop/wv-renderer.js` | `index.html`, `cfop/cfop-drawer.js`, `js/notation.js` | `WvSVG.buildSVG()`, `simulateWv()`; also exports `window.WvSvg` as an alias | Simulates Winter Variation cases and renders a top-down diagram with surrounding stickers. |
-| `cfop/cfop-drawer.js` | `index.html`, all CFOP data and renderers, `js/notation.js`, `js/ui.js`, `js/controls.js` | Private `buildDOM()`, `toggleSet()`, `renderDrawer()`, `renderCards()`, `buildCard()`, `loadAndRunAlg()`, `copyAlgorithm()`, `saveState()`, `restoreState()`, setCollapseAllState(), syncCollapseAllButton(), bindCollapseAllSync(); renderDrawer() updated. Dispatches 'cfop:ready' . | Builds the left CFOP navigation rail and case drawer; validates algorithms, renders cases, runs/setup algorithms, copies algorithms, and persists drawer state. |
-
+| `cfop/oll-renderer.js` | `index.html`, `cfop/cfop-drawer.js`, `js/notation.js` | `OllSVG.buildOllSVG()`, `simulateOll()`; exports `window.OllSVG` | Simulates inverse OLL algorithms and renders top-down orientation diagrams. |
+| `cfop/pll-renderer.js` | `index.html`, `cfop/cfop-drawer.js`, `js/notation.js` | `PllSVG.buildPllSVG()`, `simulatePll()`; exports `window.PllSVG` | Simulates PLL permutations and renders top-view diagrams with piece movement arrows. |
+| `cfop/wv-renderer.js` | `index.html`, `cfop/cfop-drawer.js`, `js/notation.js` | `WvSVG.buildSVG()`, `simulateWv()`; exports `window.WvSvg` as an alias | Simulates Winter Variation cases and renders top-down diagrams. |
+| `cfop/cfop-drawer.js` | `index.html`, CFOP data and renderers, `js/notation.js`, `js/ui.js`, `js/controls.js` | Private `buildDOM()`, `toggleSet()`, `renderDrawer()`, `renderCards()`, `buildCard()`, `loadAndRunAlg()`, `copyAlgorithm()`, `saveState()`, `restoreState()` and collapse-all helpers; dispatches `cfop:ready` and `mobile:sheet-open` | Builds the CFOP rail and drawer; validates algorithms, renders cases, runs and sets up algorithms, copies algorithms, and persists drawer state. Also manages the CFOP mobile button state. |
 
 ### Stylesheets, Tests, and Documentation
 
-| File Path & Name | Connected Files | Core Responsibility | Purpose / Description |
+| File | Connected files | Core responsibility | Purpose |
 | :--- | :--- | :--- | :--- |
-| `css/style.css` | `index.html`, application UI scripts | Global layout, theme tokens, stage, control panel, timer, move queue, move pad, history, and credits | Main application styling. |
-| `css/style2.css` | `index.html`, `cfop/cfop-drawer.js`, `css/watermark.css` | CFOP root, rail, drawer, sections, cards, actions, and brand status styles | Base CFOP drawer and library styling. |
-| `css/style3.css` | `index.html`, `cfop/cfop-drawer.js`, `css/watermark.css` | CFOP validation/error and mobile navigation/drawer styles | Responsive CFOP styling and card error presentation. |
-| `css/watermark.css` | `index.html`, `cfop/cfop-drawer.js`, `css/style2.css`, `css/style3.css` | `.cfop-watermark-*` rules | Styles the rail watermark. |
-| `css/mobile.css` | `index.html`, `js/ui.js`, `cfop/cfop-drawer.js` | Mobile breakpoint (≤860px), bottom bar, control-panel sheet, CFOP sheet, touch sizing, and mobile panel visibility rules. Loaded after the other stylesheets. |
-| `tests/regression.html` | `tests/regression.js`, application JavaScript, CFOP data and renderers | Standalone browser regression-test page | Loads the cube engine and CFOP modules for browser tests. |
+| `css/style.css` | `index.html`, application UI scripts | Global layout, theme tokens, stage, control panel, timer, move queue, move pad, history, credits | Main application styling. |
+| `css/style2.css` | `index.html`, `cfop/cfop-drawer.js`, `css/watermark.css` | CFOP rail, drawer, sections, cards, actions, and brand status styles | Base CFOP library styling. |
+| `css/style3.css` | `index.html`, `cfop/cfop-drawer.js`, `css/watermark.css` | CFOP validation and diagram error states | The supplied stylesheet contains CFOP validation/error rules. Verify the working copy before relying on any responsive rules in it. |
+| `css/watermark.css` | `index.html`, `cfop/cfop-drawer.js`, `css/style2.css`, `css/style3.css` | `.cfop-watermark-*` rules | Styles the CFOP rail watermark. |
+| `css/mobile.css` | `index.html`, `js/ui.js`, `cfop/cfop-drawer.js` | Mobile breakpoint at 860px, bottom navigation, split stage/panel layout, control sheet, CFOP sheet, touch sizing, and mobile-only visibility rules | Loaded after the other stylesheets. Recent changes were proposed to keep the cube visible, constrain the panel to a maximum of 35dvh, compact the Move Pad toolbar, and center the mobile ISO icon. Final local contents and runtime behavior have not been verified. |
+| `tests/regression.html` | `tests/regression.js`, application JavaScript, CFOP data and renderers | Standalone browser regression page | Loads the cube engine and CFOP modules for browser tests. |
 | `tests/regression.js` | `tests/regression.html`, `js/notation.js`, `js/cube.js`, CFOP data and renderers | `runRegressionTests()` | Tests data parsing, move/inverse identities, double turns, representative algorithms, and invalid renderer inputs. |
 | `hotkeys_guide.txt` | `js/hotkeys.js`, `js/ui.js`, `index.html` | User-facing shortcut reference | Documents cube move bindings, timer/camera shortcuts, and sidebar controls. |
 | `mentcode/instruct.txt` | CFOP drawer and timer behavior | Operational behavior notes | Summarizes timer and CFOP Run/Setup expectations. |
-| `mentcode/ment.md` | Project files and `mentcode/connectDB.md` | Chronological project update log | Records project phases and reported changes; verify claims against the working tree before treating them as completed. |
+| `mentcode/ment.md` | Project files and `mentcode/connectDB.md` | Chronological project update log | Records project phases and reported changes. Verify claims against the working tree. |
 | `mentcode/connectDB.md` | Project files and tests | Architecture map and workflow notes | Describes project connections, file layout, and verification cautions. |
 | `mentcode/mentC.md` | All files listed in this registry | This registry | Codebase reference for file locations, connections, and responsibilities. |
 
-## 📦 3. Script Load Order
+## 3. Script Load Order
 
-The supplied `index.html` loads application scripts in this order:
+The supplied `index.html` loads scripts in this order:
 
 1. `js/notation.js`
 2. `js/cube.js`
@@ -115,45 +117,114 @@ The supplied `index.html` loads application scripts in this order:
 14. `cfop/wv-renderer.js`
 15. `cfop/cfop-drawer.js`
 
+CFOP data and renderers must load before `cfop-drawer.js`. The drawer also requires `window.CubeNotation`. There is no mobile JavaScript file in the supplied script list.
 
-CFOP data and renderers must be available before `cfop-drawer.js` initializes. The drawer also requires `window.CubeNotation`.
+## 4. Current Behavior and Verification Notes
 
-## 🗒️ 4. Current Behavior & Verification Notes
+### Confirmed from supplied source
 
-- The CFOP rail is generated from `window.CFOP_DATA`; the supplied datasets include F2L, OLL, PLL, and WV.
-- The drawer supports category selection, accordion sections, collapse/expand all, case diagrams, Run, Setup, Copy, and local-storage restoration.
-- The drawer’s `[` shortcut toggles the drawer when a set is active; Escape closes it.
-- The application’s `\` shortcut toggles the controls panel. This is distinct from the CFOP drawer shortcut.
-- `tests/regression.html` loads the regression test script but does not load `cfop/cfop-drawer.js`; the supplied regression tests therefore do not verify drawer UI behavior.
-- In the supplied `css/style3.css` content, mobile layout rules are shown without a visible enclosing `@media` rule. Confirm the actual stylesheet before relying on those rules being mobile-only.
-- The supplied contents were not run or checked against a repository working tree. No test results are asserted here.
-- css/style3.css contains only CFOP validation rules. No mobile rules are present in the supplied content.
-- Mobile breakpoint is 860px across ui.js, cfop-drawer.js, and mobile.css.
-- style.css header lists @media blocks, but the supplied content contains none. Confirm before relying on mobile.css overrides.
-- `index.html` loads `css/mobile.css` after `style3.css` and contains the mobile bottom bar with `#mbb-cfop`, `#mbb-movepad`, and `#mbb-menu`.
-- The Move Pad is `#pad`, a direct child of the controls panel `#panel`. The mobile stylesheet supplied so far hides non-pad content in Moves mode, but does not include the Menu-mode rule to hide `#pad`.
-- In the latest supplied `js/ui.js`, `mobileMenuBtn` and `mobileMoveBtn` are referenced but are not declared. The source also contains an unused `showPanelModule()` helper. The proposed correction has not been confirmed as applied.
-- Reported mobile behavior: CFOP opens and closes correctly; Moves opens the Move Pad, but tapping Moves again opens Menu; the Move Pad also remains visible in Menu. These issues are unresolved.
-- The supplied `cfop-drawer.js` dynamically creates `#cfopDrawer` and its controls. The earlier selector `#cfopDrawerHead .cfop-collapse-all-btn` only exists after rendering a CFOP set; the supplied console result showed the Collapse All control and six section toggles after selecting F2L.
-- `MobileNav.diagnose()` is not a supported console command: no `MobileNav` global is defined in the supplied code.
-- The supplied source and reported live behavior may differ. No browser run or independent filesystem inspection has been performed.
+- `index.html` includes the mobile bottom navigation buttons `#mbb-cfop`, `#mbb-movepad`, and `#mbb-menu`.
+- `index.html` loads `css/mobile.css` after the other stylesheets.
+- The mobile breakpoint used by `js/ui.js` and `cfop/cfop-drawer.js` is 860px.
+- `#panel` contains the Timer, Move Queue, Algorithm Library, Move Pad, History, and credits modules.
+- `js/ui.js` declares `mobileMenuBtn` and `mobileMoveBtn` and uses them in its mobile panel logic. Earlier registry notes claiming these variables were undeclared are superseded.
+- `js/main.js` uses `ResizeObserver` on `#canvas-container`. A split layout that changes the stage height should trigger a renderer and camera resize.
+- `cfop/cfop-drawer.js` creates `.cfop-root`, `.cfop-sidebar`, the CFOP rail, and `#cfopDrawer` dynamically.
+- The latest user-supplied `index.html` contains Timer controls including `#timerMain` and `#timerReset`, and Move Queue controls including `#seqInvert` and `#seqClear`.
+- The latest full HTML response supplied a single Move Pad with a shared `.pad-toolbar`, short category labels, and the mobile ISO button inside Quick Actions.
 
+### Mobile design requirements and proposed implementation
 
-## 🔄 5. Recent Update Log
+- The cube remains visible in an upper stage while the open controls occupy a lower region. The panel should not cover the cube.
+- The requested maximum height for the lower panel is 35dvh. The most recent CSS proposal uses content-sized panel height up to this limit to avoid empty space below the Move Pad buttons.
+- The Move Pad category tabs and turn-direction controls belong in one `.pad-toolbar`. Proposed short labels are `Face`, `Slice`, `Wide`, and `Rot`, with `CW`, `CCW`, and `2x`.
+- The Move Pad collapse control and keyboard hint should be hidden on mobile. The six generated move buttons should fit without unnecessary scrolling when viewport space allows.
+- The mobile ISO control is a second button with `id="mobileIsoBtn"` inside `#quick`. The desktop ISO preset remains inside `.cam`. Both use `data-view="iso"` and are selected by the `.cam-btn` query in `js/ui.js`.
+- The latest HTML proposal wraps the ISO SVG in `.q-iso-icon-wrap`. A CSS override was supplied to center and size the SVG.
+- The mobile ISO toggle behavior requires the corresponding `js/ui.js` change to toggle between ISO and the reset/default camera view and to synchronize `aria-pressed`.
+- Reuse the existing inline SVG symbol sprite. No external icon library or new dependency was added.
 
-### Registry creation — date not recorded
-- **Changed:** Created this registry content from the code and documentation supplied in the session.
-- **Scope:** Documented the supplied project tree, script order, file connections, exported APIs, and major responsibilities.
-- **Verification:** No repository inspection, browser run, or regression-test execution was performed. No application changes or test results are claimed.
-### Mobile navigation — code applied (proposed v1.1)
-- Changed: css/mobile.css (replaced), cfop-drawer.js (renderDrawer + 3 helpers), index.html (bottom bar markup, script tag).
-- Corrected from earlier plan: real IDs (#panel, #pad, .cfop-sidebar), 860px breakpoint, drag.js and main.js need no changes, style3.css has no mobile rules.
-- Verification: not run in a browser. No test results claimed. Date not recorded.
-### Mobile navigation and Move Pad follow-up — date not recorded
-- **Source reviewed:** User-supplied `index.html`, `js/ui.js`, `cfop/cfop-drawer.js`, and `css/mobile.css` excerpts.
-- **Confirmed from supplied source:** The mobile bar has CFOP, Moves, and Menu buttons; `mobile.css` is loaded last; the breakpoint is 860px; the Move Pad is `#pad` inside `#panel`.
-- **Reported by user:** CFOP toggle works. Moves opens the Move Pad, but toggling Moves again opens Menu. The Move Pad is still visible in Menu.
-- **Issue found in supplied `ui.js`:** `mobileMenuBtn` and `mobileMoveBtn` are referenced without declarations; `showPanelModule()` remains unused.
-- **Issue found in supplied `mobile.css`:** The Menu-mode rule hiding `#pad` is missing.
-- **Status:** Corrective code was provided, but application and verification are not confirmed. Do not mark the mobile Menu/Moves behavior as fixed until retested.
-- **Verification:** Not run. No claim of regression or browser tests passing.
+These are requested/proposed changes, not verified working-tree facts. Confirm that the latest HTML, CSS, and JavaScript edits are applied before treating them as current implementation.
+
+### Debugging and markup corrections discussed
+
+- Earlier runtime errors reported missing `#timerMain`, `#timerReset`, and `#seqClear`. Later user-supplied HTML restored those elements.
+- A prior malformed HTML edit placed the Move Pad toolbar inside the Move Queue header. This removed the queue's `#seqInvert` and `#seqClear` controls and caused an `addEventListener` error.
+- The corrected structure keeps the queue header and its controls inside `#queue`, and places the single Move Pad section after Algorithm Library.
+- IDs such as `#pad`, `#modSeg`, `#pane`, `#tab-outer`, and `#padHint` must appear only once.
+- The browser previously returned `null` for required IDs. The final supplied HTML was not tested in a browser, so check the served DOM after applying it. A hard refresh may be needed if the browser has stale markup.
+- The earlier report that tapping Moves opened Menu and left the pad visible reflects an older or unverified state. The supplied `js/ui.js` implementation has separate Menu and Moves modes, but browser retesting is still required.
+- `tests/regression.html` loads the regression test script but not `cfop/cfop-drawer.js`; those tests do not verify drawer UI behavior.
+- No repository inspection, browser run, or regression test execution is claimed.
+
+Useful browser checks after applying the latest HTML:
+
+```js
+[
+  'timerMain',
+  'timerReset',
+  'seqClear',
+  'seqInvert',
+  'seqTrack',
+  'modSeg',
+  'pane',
+  'padHint',
+  'mobileIsoBtn'
+].map(id => [id, Boolean(document.getElementById(id))]);
+
+document.querySelectorAll('#pad').length;
+document.querySelectorAll('#modSeg').length;
+document.querySelectorAll('#pane').length;
+```
+
+The required elements should be present, and each of the final three counts should be `1`.
+
+## 5. Recent Update Log
+
+### Registry creation
+
+- **Date:** Not recorded.
+- **Changed:** Created the initial registry from files and documentation supplied in the session.
+- **Verification:** No repository inspection, browser run, or regression tests were performed.
+
+### Mobile navigation and panel behavior
+
+- **Date:** Not recorded.
+- **Files discussed:** `index.html`, `css/mobile.css`, `js/ui.js`, `cfop/cfop-drawer.js`.
+- **Changes discussed:** Mobile bottom navigation for CFOP, Moves, and Menu; mobile panel visibility states; CFOP button synchronization; responsive sheet styling.
+- **Mobile script status:** No `mobile.js` file is present in the current supplied tree or script load order.
+- **Verification:** User reported earlier behavior issues. Current browser behavior has not been independently verified.
+
+### Cube and panel split layout
+
+- **Date:** Not recorded.
+- **Files discussed:** `css/mobile.css`, `js/main.js`, `cfop/cfop-drawer.js`.
+- **Changes discussed:** Keep the cube visible above the open controls instead of allowing a panel to cover it. `main.js` already observes `#canvas-container` with `ResizeObserver`.
+- **Panel sizing:** Latest proposal uses an auto-sized lower panel with a maximum height of 35dvh, reducing unused space below the Move Pad.
+- **CFOP state:** A `.cfop-open` root class was proposed so the CFOP drawer can occupy the lower layout row. Application of this patch is unconfirmed.
+- **Verification:** Not run in a browser.
+
+### Move Pad and mobile ISO updates
+
+- **Date:** Not recorded.
+- **Files discussed:** `index.html`, `css/mobile.css`, `js/ui.js`.
+- **Changes discussed:** Put category and turn controls in one `.pad-toolbar`, use short labels and existing SVG sprite icons, hide the Move Pad collapse button and keyboard hint on mobile, and add a mobile ISO button to Quick Actions.
+- **SVG alignment:** Added `.q-iso-icon-wrap` in the proposed HTML and supplied CSS to center and size its SVG.
+- **Camera state:** Supplied a `setView()` update to synchronize ISO active styling and `aria-pressed`; the mobile ISO button toggles between ISO and reset/default view.
+- **Verification:** The complete updated HTML was supplied, but its application and browser behavior are unconfirmed.
+
+### Timer and queue markup errors
+
+- **Date:** Not recorded.
+- **Issue reported:** `ui.js` threw errors when `#timerMain`, `#timerReset`, and `#seqClear` were missing from the served DOM.
+- **Cause identified:** During an earlier markup edit, a standalone timer button and Move Pad markup replaced or displaced required Timer and Move Queue structure. The Move Pad toolbar was also placed inside the Move Queue header.
+- **Correction supplied:** Restore the complete Timer module, restore the Move Queue header with `#seqInvert` and `#seqClear`, and keep one Move Pad section after Algorithm Library.
+- **Verification:** Later user-supplied HTML contained Timer and Queue controls. The final full HTML proposal has not been confirmed or tested in the working tree.
+
+## 6. Verification Status
+
+- **Filesystem inspection:** Not performed.
+- **Browser visual review:** Not performed.
+- **JavaScript console verification:** Not performed after the final HTML proposal.
+- **Regression tests:** No results available.
+- **Claims of completion:** Do not treat proposed changes as applied until the current files are checked and the app is retested.
