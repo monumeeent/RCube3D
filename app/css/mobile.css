@@ -1052,5 +1052,17 @@
   #cfopDrawerHead {
     display: none;
   }
+  #panel.mobile-pad-only #pad {
+  display: flex;
+  flex-direction: column;
+}
+
+#panel.mobile-pad-only #pad > .module-head {
+  order: 2;
+}
+
+#panel.mobile-pad-only #pad > .module-pad {
+  order: 1;
+}
   
 }
