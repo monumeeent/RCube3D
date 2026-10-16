@@ -162,23 +162,27 @@
   }
 
   #mobileIsoBtn {
-    display: flex;
-    flex: 0 0 56px;
-    width: 56px;
-    height: 56px;
-    place-items: center;
-    padding: 0;
-    border: 1px solid var(--line);
-    border-radius: var(--r-lg);
-    background: var(--glass);
-    color: var(--ink-2);
-    line-height: 0;
+        display: flex;
+        place-items: center;
+        padding: 0;
+        line-height: 0;
+		flex: 0 0 48px;
+        width: 48px;
+        height: 48px;
+        place-items: center;
+        border: 0;
+        border-radius: var(--r-md);
+        background: var(--accent);
+        color: var(--on-accent);
+        box-shadow: 0 3px 0 #b39500;
+        transition: transform 0.2s var(--ease);
   }
 
   #mobileIsoBtn.is-active {
     border-color: var(--accent);
     background: var(--accent);
     color: var(--on-accent);
+	transform: scale(1.06);
   }
 
   #mobileIsoBtn .q-iso-icon-wrap {
@@ -254,7 +258,7 @@
   }
 
   .quick.open .q-fab {
-    transform: rotate(45deg);
+    transform: scale(1.06);
   }
 
   .q-fab:active {
