@@ -8,6 +8,7 @@
   // ── State ──────────────────────────────────────────────────────────────
   let activeSet = null;     // key in CFOP_DATA, e.g. 'oll'
   let drawerOpen = false;
+  let collapseRailBtn = null;
 
   const store = {
     get(k) { try { return localStorage.getItem(k); } catch { return null; } },
@@ -98,8 +99,8 @@
       rail.appendChild(btn);
     });
     
-    // Collapse-all icon button — shown in the rail when the drawer is open
-    const collapseRailBtn = document.createElement('button');
+    // Collapse-all icon button — placed in the drawer head by renderDrawer()
+    collapseRailBtn = document.createElement('button');
     collapseRailBtn.type = 'button';
     collapseRailBtn.className = 'cfop-collapse-rail-btn';
     collapseRailBtn.id = 'cfopCollapseRailBtn';
@@ -122,7 +123,6 @@
       });
       syncCollapseRailBtn();
     });
-    rail.appendChild(collapseRailBtn);
 
     // Append Watermark to the bottom of the rail
     const watermarkWrap = document.createElement('div');
@@ -300,15 +300,22 @@ function syncMobileCfopButton() {
   }
 
   function syncCollapseRailBtn() {
-    const btn = document.getElementById('cfopCollapseRailBtn');
-    if (!btn) return;
     const list = document.getElementById('cfopCardList');
     const toggles = list ? [...list.querySelectorAll('.cfop-drawer-toggle')] : [];
     const allExpanded = toggles.length > 0 &&
       toggles.every(b => b.getAttribute('aria-expanded') === 'true');
-    btn.setAttribute('aria-label', allExpanded ? 'Collapse all sections' : 'Expand all sections');
-    btn.setAttribute('title', allExpanded ? 'Collapse All' : 'Expand All');
-    btn.classList.toggle('is-all-expanded', allExpanded);
+
+    // Rail button (mobile)
+    const railBtn = document.getElementById('cfopCollapseRailBtn');
+    if (railBtn) {
+      railBtn.setAttribute('aria-label', allExpanded ? 'Collapse all sections' : 'Expand all sections');
+      railBtn.setAttribute('title', allExpanded ? 'Collapse All' : 'Expand All');
+      railBtn.classList.toggle('is-all-expanded', allExpanded);
+    }
+
+    // Drawer head button (desktop)
+    const headBtn = document.querySelector('#cfopDrawerHead .cfop-collapse-all-btn');
+    if (headBtn) setCollapseAllState(headBtn, allExpanded);
   }
 
   // One delegated listener on the list. It survives re-renders, so bind only once.
@@ -367,6 +374,7 @@ function syncMobileCfopButton() {
 
       head.appendChild(title);
       head.appendChild(count);
+      if (collapseRailBtn) head.appendChild(collapseRailBtn);
       if (closeBtn) head.appendChild(closeBtn);
     }
 

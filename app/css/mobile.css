@@ -162,27 +162,23 @@
   }
 
   #mobileIsoBtn {
-        display: flex;
-        place-items: center;
-        padding: 0;
-        line-height: 0;
-		flex: 0 0 48px;
-        width: 48px;
-        height: 48px;
-        place-items: center;
-        border: 0;
-        border-radius: var(--r-md);
-        background: var(--accent);
-        color: var(--on-accent);
-        box-shadow: 0 3px 0 #b39500;
-        transition: transform 0.2s var(--ease);
+    display: grid;
+    flex: 0 0 56px;
+    width: 56px;
+    height: 56px;
+    place-items: center;
+    padding: 0;
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    background: var(--glass);
+    color: var(--ink-2);
+    line-height: 0;
   }
 
   #mobileIsoBtn.is-active {
     border-color: var(--accent);
     background: var(--accent);
     color: var(--on-accent);
-	transform: scale(1.06);
   }
 
   #mobileIsoBtn .q-iso-icon-wrap {
@@ -258,7 +254,7 @@
   }
 
   .quick.open .q-fab {
-    transform: scale(1.06);
+    transform: rotate(45deg);
   }
 
   .q-fab:active {
@@ -789,13 +785,13 @@
     height: 17px;
   }
 
-  /* Collapse-all rail button — sits at the trailing end of the horizontal rail */
+  /* Collapse-all icon button inside the drawer head */
   .cfop-collapse-rail-btn {
-    flex: 0 0 44px;
-    width: 44px;
-    height: 44px;
+    flex: 0 0 auto;
+    width: 36px;
+    height: 36px;
     margin-top: 0;
-    margin-left: auto;
+    margin-left: 0;
   }
 
   /* ==========================================================================
@@ -1053,20 +1049,4 @@
     overflow-x: hidden;
     overflow-y: auto;
   }
-  #cfopDrawerHead {
-    display: none;
-  }
-  #panel.mobile-pad-only #pad {
-  display: flex;
-  flex-direction: column;
-}
-
-#panel.mobile-pad-only #pad > .module-head {
-  order: 2;
-}
-
-#panel.mobile-pad-only #pad > .module-pad {
-  order: 1;
-}
-  
 }

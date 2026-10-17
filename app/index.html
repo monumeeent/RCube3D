@@ -213,6 +213,30 @@
             <button type="button" data-speed="4">4x</button>
           </div>
         </div>
+		
+		<div class="speed-range" role="group" aria-label="Playback speed adjustment">
+  <label for="speedSlider">
+    Speed <output id="speedValue" for="speedSlider">1x</output>
+  </label>
+
+  <input
+    type="range"
+    id="speedSlider"
+    min="0.2"
+    max="4"
+    step="0.1"
+    value="1"
+    aria-label="Playback speed">
+
+  <button
+    type="button"
+    class="icon-btn speed-reset"
+    id="speedReset"
+    aria-label="Reset playback speed to 1x"
+    title="Reset to 1x">
+    <svg class="ic"><use href="#i-reset"></use></svg>
+  </button>
+</div>
 
         <form class="alg-form" id="algForm" novalidate>
           <label for="alg-input">Run your own algorithm</label>

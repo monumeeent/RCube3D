@@ -35,3 +35,134 @@
   text-align: center;
 }
 
+/* ==========================================================================
+   02. SPEED RANGE SLIDER
+   ========================================================================== */
+
+/* Move queue playback speed slider — RCube3D theme */
+.speed-range {
+  --speed-track: var(--s3);
+  --speed-thumb-border: var(--s1);
+
+  display: grid;
+  grid-template-columns: auto minmax(70px, 1fr) 34px;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.speed-range label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--ink-2);
+  font-size: 0.78rem;
+  white-space: nowrap;
+}
+
+.speed-range output {
+  min-width: 3em;
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Horizontal track and app-accent progress */
+#speedSlider {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+  height: 8px;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: linear-gradient(
+    to right,
+    var(--accent) var(--range-progress, 21.05%),
+    var(--speed-track) var(--range-progress, 21.05%)
+  );
+  cursor: pointer;
+  touch-action: pan-y;
+}
+
+#speedSlider::-webkit-slider-runnable-track {
+  height: 8px;
+  border-radius: 999px;
+  background: transparent;
+}
+
+#speedSlider::-moz-range-track {
+  height: 8px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+}
+
+#speedSlider::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 17px;
+  height: 17px;
+  margin-top: -5px;
+  border: 3px solid var(--speed-thumb-border);
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 2px rgba(255, 213, 0, 0.2);
+  transition: box-shadow 150ms var(--ease), transform 150ms var(--ease);
+}
+
+#speedSlider::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border: 3px solid var(--speed-thumb-border);
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 2px rgba(255, 213, 0, 0.2);
+  transition: box-shadow 150ms var(--ease), transform 150ms var(--ease);
+}
+
+#speedSlider:hover::-webkit-slider-thumb {
+  transform: scale(1.12);
+  box-shadow: 0 0 0 5px rgba(255, 213, 0, 0.15);
+}
+
+#speedSlider:hover::-moz-range-thumb {
+  transform: scale(1.12);
+  box-shadow: 0 0 0 5px rgba(255, 213, 0, 0.15);
+}
+
+#speedSlider:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 5px;
+  border-radius: 999px;
+}
+
+.speed-range .speed-reset {
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  color: var(--dim);
+  transition: color 150ms var(--ease), border-color 150ms var(--ease);
+}
+
+.speed-range .speed-reset:hover {
+  color: var(--accent);
+  border-color: var(--line-strong);
+}
+
+@media (max-width: 480px) {
+  .speed-range {
+    grid-template-columns: auto minmax(60px, 1fr) 34px;
+    gap: 9px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #speedSlider::-webkit-slider-thumb,
+  #speedSlider::-moz-range-thumb,
+  .speed-range .speed-reset {
+    transition: none;
+  }
+}

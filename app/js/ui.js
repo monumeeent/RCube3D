@@ -1,9 +1,10 @@
-// filename: ui.js
-// Functions/work: Panel behavior for RCube3D. Move pad keycaps, keybind lighting,
-//   timer + TPS, move queue with scrubbing, algorithm library, camera presets,
-//   mobile speed dial.
-// Connected to: controls.js (queueMove, enqueueCubeMoves, events), cube.js
-//   (RubiksCube.isSolved / setTurnDuration), main.js (setCameraView).
+// cube.js
+// Functions/work: Builds the Three.js cube; animates and rebuilds cubies;
+//   checks solved state; provides state snapshots and turn-speed control;
+//   manages camera-aware X-ray mode for viewing far-side sticker colors.
+// Connected to: main.js (scene, camera, rendering loop), controls.js
+//   (move execution and turn parameters), ui.js (X-ray controls),
+//   tests/regression.js (cube state and move behavior).
 
 (() => {
   'use strict';
@@ -673,12 +674,44 @@ function playLoop() {
     status('Inverse loaded. Press play to run it.');
   });
 
-  $('speed').addEventListener('click', e => {
-    const b = e.target.closest('button[data-speed]');
-    if (!b) return;
-    $('speed').querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
-    window.RubiksCube.setTurnDuration(200 / Number(b.dataset.speed));
+  const speedSlider = $('speedSlider');
+const speedValue = $('speedValue');
+
+function setPlaybackSpeed(value) {
+  const speed = Math.max(0.2, Math.min(4, Number(value) || 1));
+
+  window.RubiksCube.setTurnDuration(200 / speed);
+  speedSlider.value = String(speed);
+  speedSlider.style.setProperty(
+  '--range-progress',
+  `${((speed - 0.2) / (4 - 0.2)) * 100}%`
+);
+  speedValue.textContent = `${Number(speed.toFixed(1))}x`;
+
+  $('speed').querySelectorAll('button[data-speed]').forEach(button => {
+    button.classList.toggle(
+      'on',
+      Math.abs(Number(button.dataset.speed) - speed) < 0.001
+    );
   });
+}
+
+$('speed').addEventListener('click', e => {
+  const button = e.target.closest('button[data-speed]');
+  if (button) setPlaybackSpeed(button.dataset.speed);
+});
+
+speedSlider.addEventListener('input', () => {
+  setPlaybackSpeed(speedSlider.value);
+});
+
+$('speedReset').addEventListener('click', () => {
+  setPlaybackSpeed(1);
+});
+
+// Initialize the slider, preset highlight, and cube turn duration to 1x.
+setPlaybackSpeed(1);
+
 
   // Engine events
   document.addEventListener('cube:sequence', e => {

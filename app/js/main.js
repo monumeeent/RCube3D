@@ -203,7 +203,8 @@ const CAMERA_VIEWS = {
     stepCameraTween(now || performance.now());
     controls.update();
     processQueue();
-    renderer.render(scene, camera);
+    window.RubiksCube.updateXrayCamera(camera);
+	renderer.render(scene, camera);
   }
 
   function init() {

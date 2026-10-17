@@ -1,7 +1,7 @@
 # Project Codebase Registry (`mentcode/mentC.md`)
 
-> **Last Updated:** Date not recorded. Updated from the source and changes discussed in this session.
-> **Active Version:** v1.2
+> **Last Updated:** 2026-10-17; X-ray and playback-speed notes added this session (date not recorded).
+> **Active Version:** v1.3
 > **Registry Status:** Based on files and snippets supplied in this session. The repository and final runtime state have not been independently inspected.
 > **Update mentC:** Update this file after project changes.
 > **Connected Files:** Before changing a feature, review its connected files so the current logic is understood.
@@ -45,9 +45,7 @@ RCube3D/
 │   └── regression.js
 │
 └── mentcode/
-    ├── instruct.txt
-    ├── ment.md
-    ├── connectDB.md
+    ├── mentC-skill.md
     └── mentC.md
 ```
 
@@ -60,10 +58,10 @@ RCube3D/
 | File | Connected files | Core functions and exports | Responsibility |
 | :--- | :--- | :--- | :--- |
 | `js/notation.js` | `js/controls.js`, `js/ui.js`, `cfop/cfop-drawer.js`, CFOP renderers, `tests/regression.js` | `normalizeToken()`, `parseAlgorithm()`, `invertToken()`, `invertAlgorithm()`; exports `window.CubeNotation` and `window.CubeNotation.TOKEN` | Shared move-notation parsing, normalization, and inversion. |
-| `js/cube.js` | `js/main.js`, `js/controls.js`, `js/ui.js`, `tests/regression.js` | `window.RubiksCube`: `init()`, `executeMove()`, `rebuildCube()`, `isSolved()`, `getStateSnapshot()`, `setTurnDuration()` | Creates and animates Three.js cubies; tracks cube state and X-ray mode. |
+| `js/cube.js` | `js/main.js`, `js/controls.js`, `js/ui.js`, `tests/regression.js` | `window.RubiksCube`: `init()`, `executeMove()`, `rebuildCube()`, `isSolved()`, `getStateSnapshot()`, `setTurnDuration()`; proposed `updateXrayCamera()`; globals `setXrayMode()` and `toggleXrayMode()` | Creates and animates Three.js cubies; tracks cube state; manages X-ray mode. The proposed selective X-ray implementation uses per-face materials, ghosts camera-facing stickers, and keeps far-side stickers opaque. |
 | `js/controls.js` | `js/notation.js`, `js/cube.js`, `js/main.js`, `js/hotkeys.js`, `js/ui.js`, `cfop/cfop-drawer.js` | `queueMove()`, `enqueueCubeMoves()`, `takeNextMove()`, `clearMoveQueue()`, `getTurnParameters()`, `undoCubeMove()`, `scrambleCube()`, `resetCube()`, `recordExecutedMove()` and status/history helpers | Move queue, move parameters, undo, scramble, history, and cube-control APIs. |
-| `js/main.js` | `index.html`, `js/cube.js`, `js/controls.js`, Three.js and OrbitControls | `init()`, `resizeRenderer()`, `processQueue()`, `setCameraView()`, `getClosestFace()`, `snapCameraToClosestFace()` | Initializes the Three.js scene, camera, renderer, and animation loop. The supplied version observes `#canvas-container` with `ResizeObserver` and updates renderer size and camera aspect when the container changes size. |
-| `js/ui.js` | `index.html`, `js/controls.js`, `js/cube.js`, `js/main.js`, `js/notation.js` | Builds the collapsible module wrappers; manages timer, move pad, queue playback, algorithm input, camera presets, quick actions, X-ray, and mobile Menu/Moves panel behavior | Main application UI logic. Mobile navigation uses `#mbb-menu` and `#mbb-movepad` through `setPanel()` and `toggleMobilePanel()`. |
+| `js/main.js` | `index.html`, `js/cube.js`, `js/controls.js`, Three.js and OrbitControls | `init()`, `resizeRenderer()`, `processQueue()`, `setCameraView()`, `getClosestFace()`, `snapCameraToClosestFace()` | Initializes the Three.js scene, camera, renderer, and animation loop. The supplied version observes `#canvas-container` with `ResizeObserver` and updates renderer size and camera aspect when the container changes size. The proposed camera-aware X-ray implementation also requires calling `RubiksCube.updateXrayCamera(camera)` before rendering each frame. |
+| `js/ui.js` | `index.html`, `js/controls.js`, `js/cube.js`, `js/main.js`, `js/notation.js` | Builds collapsible module wrappers; manages timer, move pad, queue playback, algorithm input, camera presets, quick actions, X-ray, and mobile Menu/Moves panel behavior | Main application UI logic. Mobile navigation uses `#mbb-menu` and `#mbb-movepad` through `setPanel()` and `toggleMobilePanel()`. Proposed queue speed controls use `#speedSlider`, `#speedValue`, and `#speedReset`; application is unconfirmed. |
 | `js/hotkeys.js` | `js/controls.js`, `js/ui.js` | Private `handleKeyDown()`; calls `queueMove()` and `undoCubeMove()` | Maps keyboard move bindings and Ctrl+Z to cube actions. |
 | `js/drag.js` | `index.html`, `.single-control-bar`, `.drawer-tabs` | DOM-ready drag-to-scroll listeners | Adds mouse drag scrolling to selected horizontal controls. |
 
@@ -78,17 +76,17 @@ RCube3D/
 | `cfop/oll-renderer.js` | `index.html`, `cfop/cfop-drawer.js`, `js/notation.js` | `OllSVG.buildOllSVG()`, `simulateOll()`; exports `window.OllSVG` | Simulates inverse OLL algorithms and renders top-down orientation diagrams. |
 | `cfop/pll-renderer.js` | `index.html`, `cfop/cfop-drawer.js`, `js/notation.js` | `PllSVG.buildPllSVG()`, `simulatePll()`; exports `window.PllSVG` | Simulates PLL permutations and renders top-view diagrams with piece movement arrows. |
 | `cfop/wv-renderer.js` | `index.html`, `cfop/cfop-drawer.js`, `js/notation.js` | `WvSVG.buildSVG()`, `simulateWv()`; exports `window.WvSvg` as an alias | Simulates Winter Variation cases and renders top-down diagrams. |
-| `cfop/cfop-drawer.js` | `index.html`, CFOP data and renderers, `js/notation.js`, `js/ui.js`, `js/controls.js` | Private `buildDOM()`, `toggleSet()`, `renderDrawer()`, `renderCards()`, `buildCard()`, `loadAndRunAlg()`, `copyAlgorithm()`, `saveState()`, `restoreState()` and collapse-all helpers; dispatches `cfop:ready` and `mobile:sheet-open` | Builds the CFOP rail and drawer; validates algorithms, renders cases, runs and sets up algorithms, copies algorithms, and persists drawer state. Also manages the CFOP mobile button state. |
+| `cfop/cfop-drawer.js` | `index.html`, CFOP data and renderers, `js/notation.js`, `js/ui.js`, `js/controls.js` | Private `buildDOM()`, `toggleSet()`, `renderDrawer()`, `renderCards()`, `buildCard()`, `loadAndRunAlg()`, `copyAlgorithm()`, `saveState()`, `restoreState()`, `syncCollapseRailBtn()`, `openDrawer()`, `closeDrawer()`; dispatches `cfop:ready` and `mobile:sheet-open` | Builds the CFOP rail and drawer; validates algorithms, renders cases, runs and sets up algorithms, copies algorithms, and persists drawer state. Also manages the CFOP mobile button state. `collapseRailBtn` is now a module-level variable created in `buildDOM()` and inserted into `#cfopDrawerHead` by `renderDrawer()` on every render; it is no longer appended to the rail. |
 
 ### Stylesheets, Tests, and Documentation
 
 | File | Connected files | Core responsibility | Purpose |
 | :--- | :--- | :--- | :--- |
-| `css/style.css` | `index.html`, application UI scripts | Global layout, theme tokens, stage, control panel, timer, move queue, move pad, history, credits | Main application styling. |
-| `css/style2.css` | `index.html`, `cfop/cfop-drawer.js`, `css/watermark.css` | CFOP rail, drawer, sections, cards, actions, and brand status styles | Base CFOP library styling. |
-| `css/style3.css` | `index.html`, `cfop/cfop-drawer.js`, `css/watermark.css` | CFOP validation and diagram error states | The supplied stylesheet contains CFOP validation/error rules. Verify the working copy before relying on any responsive rules in it. |
+| `css/style.css` | `index.html`, application UI scripts | Global layout, theme tokens, stage, control panel, timer, move queue, move pad, history, credits | Main application styling. Defines theme tokens including `--accent`, `--s1`, `--s3`, `--line`, `--ink`, and `--ink-2`. |
+| `css/style2.css` | `index.html`, `cfop/cfop-drawer.js`, `css/watermark.css` | CFOP rail, drawer, sections, cards, actions, brand status styles, and collapse icon button | Base CFOP library styling. Added `.cfop-collapse-rail-btn` rules in this session for the collapse icon button that now lives in `#cfopDrawerHead`. |
+| `css/style3.css` | `index.html`, `cfop/cfop-drawer.js`, `css/watermark.css` | CFOP validation and diagram error states; proposed playback-speed slider styles | The supplied stylesheet contains CFOP validation/error rules. Theme-matched horizontal speed-slider CSS was proposed for this file, using the app’s `--accent` and dark surface tokens. Verify the working copy before treating it as applied. |
 | `css/watermark.css` | `index.html`, `cfop/cfop-drawer.js`, `css/style2.css`, `css/style3.css` | `.cfop-watermark-*` rules | Styles the CFOP rail watermark. |
-| `css/mobile.css` | `index.html`, `js/ui.js`, `cfop/cfop-drawer.js` | Mobile breakpoint at 860px, bottom navigation, split stage/panel layout, control sheet, CFOP sheet, touch sizing, and mobile-only visibility rules | Loaded after the other stylesheets. Recent changes were proposed to keep the cube visible, constrain the panel to a maximum of 35dvh, compact the Move Pad toolbar, and center the mobile ISO icon. Final local contents and runtime behavior have not been verified. |
+| `css/mobile.css` | `index.html`, `js/ui.js`, `cfop/cfop-drawer.js` | Mobile breakpoint at 860px, bottom navigation, split stage/panel layout, control sheet, CFOP sheet, touch sizing, and mobile-only visibility rules | Loaded after the other stylesheets. Confirmed changes in this session: (1) `#panel.mobile-pad-only` fixed positioning removed so Moves sheet opens at the bottom in the grid layout; (2) Move Pad key grid ordered above the toolbar on mobile via `order`; (3) `.cfop-collapse-rail-btn` size and margin rules added for drawer-head context. |
 | `tests/regression.html` | `tests/regression.js`, application JavaScript, CFOP data and renderers | Standalone browser regression page | Loads the cube engine and CFOP modules for browser tests. |
 | `tests/regression.js` | `tests/regression.html`, `js/notation.js`, `js/cube.js`, CFOP data and renderers | `runRegressionTests()` | Tests data parsing, move/inverse identities, double turns, representative algorithms, and invalid renderer inputs. |
 | `hotkeys_guide.txt` | `js/hotkeys.js`, `js/ui.js`, `index.html` | User-facing shortcut reference | Documents cube move bindings, timer/camera shortcuts, and sidebar controls. |
@@ -132,6 +130,7 @@ CFOP data and renderers must load before `cfop-drawer.js`. The drawer also requi
 - `cfop/cfop-drawer.js` creates `.cfop-root`, `.cfop-sidebar`, the CFOP rail, and `#cfopDrawer` dynamically.
 - The latest user-supplied `index.html` contains Timer controls including `#timerMain` and `#timerReset`, and Move Queue controls including `#seqInvert` and `#seqClear`.
 - The latest full HTML response supplied a single Move Pad with a shared `.pad-toolbar`, short category labels, and the mobile ISO button inside Quick Actions.
+- The supplied `ui.js` X-ray button handler calls `window.toggleXrayMode()` and syncs `aria-pressed` and `.is-active` on `#xrayBtn`.
 
 ### Mobile design requirements and proposed implementation
 
@@ -145,6 +144,17 @@ CFOP data and renderers must load before `cfop-drawer.js`. The drawer also requi
 - Reuse the existing inline SVG symbol sprite. No external icon library or new dependency was added.
 
 These are requested/proposed changes, not verified working-tree facts. Confirm that the latest HTML, CSS, and JavaScript edits are applied before treating them as current implementation.
+
+### X-ray look-ahead and playback-speed slider
+
+- The supplied cube engine uses `THREE.MeshStandardMaterial` for cubie faces. Making every face translucent can reveal far-side faces, but overlapping transparent colors blend and become difficult to distinguish.
+- The proposed selective X-ray design uses individual per-face materials, ghosts camera-facing stickers, keeps far-side stickers opaque, and makes internal dark faces faintly transparent.
+- The proposed `cube.js` replacement exposes `RubiksCube.updateXrayCamera(camera)`. `main.js` must call this before rendering each frame so the near/far classification follows camera movement.
+- The last user-pasted `cube.js` combines `cubeMaterials = []` with old Map operations (`.has()`, `.set()`, and `.clear()`). That version is internally inconsistent and should not be treated as a working implementation. A complete replacement was supplied, but its application is unconfirmed.
+- The proposed Move Queue speed slider uses `#speedSlider` with a range of 0.2x–4x and a step of 0.1; `#speedValue` displays the selected speed; `#speedReset` returns it to 1x.
+- The proposed `ui.js` handler synchronizes the slider with the existing speed preset buttons and adjusts turn duration using `200 / speed`.
+- The proposed slider markup belongs after `.transport` and before `#algForm` in the Move Queue module.
+- Theme-matched horizontal slider CSS was supplied for `css/style3.css`, using `--accent`, `--s3`, `--line`, `--ink-2`, and other existing theme tokens. The CSS and markup have not been confirmed in the working tree.
 
 ### Debugging and markup corrections discussed
 
@@ -169,7 +179,10 @@ Useful browser checks after applying the latest HTML:
   'modSeg',
   'pane',
   'padHint',
-  'mobileIsoBtn'
+  'mobileIsoBtn',
+  'speedSlider',
+  'speedValue',
+  'speedReset'
 ].map(id => [id, Boolean(document.getElementById(id))]);
 
 document.querySelectorAll('#pad').length;
@@ -221,6 +234,60 @@ The required elements should be present, and each of the final three counts shou
 - **Correction supplied:** Restore the complete Timer module, restore the Move Queue header with `#seqInvert` and `#seqClear`, and keep one Move Pad section after Algorithm Library.
 - **Verification:** Later user-supplied HTML contained Timer and Queue controls. The final full HTML proposal has not been confirmed or tested in the working tree.
 
+### Moves panel bottom-sheet fix
+
+- **Date:** 2026-10-16
+- **Files changed:** `css/mobile.css`
+- **Problem:** Tapping `#mbb-movepad` opened `#panel` at the top of the viewport instead of at the bottom below the canvas.
+- **Cause:** `#panel.mobile-pad-only` had `position: fixed; top: 0; right: 0; flex-shrink: 0` which pulled the panel out of the grid flow, overriding the `position: relative; grid-row: 2` rules that make the menu sheet sit at the bottom correctly.
+- **Fix:** Removed `position: fixed`, `top: 0`, `right: 0`, and `flex-shrink: 0` from the `#panel.mobile-pad-only` block. The panel now stays in the grid as row 2, matching the CFOP sheet behavior.
+- **Verification:** CSS edit confirmed; browser retest recommended.
+
+### Move Pad key order on mobile
+
+- **Date:** 2026-10-16
+- **Files changed:** `css/mobile.css`
+- **Change:** On mobile in pad-only mode, the move key grid (`.module-pad` / `#pane`) should render above the toolbar (`.module-head` / tabs + CW/CCW/2x).
+- **Fix:** Added flex `order` rules inside `@media (max-width: 860px)`: `#panel.mobile-pad-only #pad` gets `display: flex; flex-direction: column`, `.module-head` gets `order: 2`, `.module-pad` gets `order: 1`.
+- **Verification:** CSS edit confirmed; browser retest recommended.
+
+### Collapse-all button moved to drawer head
+
+- **Date:** 2026-10-17
+- **Files changed:** `cfop/cfop-drawer.js`, `css/style2.css`, `css/mobile.css`
+- **Change:** The Collapse All control was previously a text button (`cfop-collapse-all-btn`) inside `#cfopDrawerHead`. It was refactored into a single icon button (`#cfopCollapseRailBtn`, class `cfop-collapse-rail-btn`) that is now permanently placed in the drawer head on both desktop and mobile. It is no longer appended to the CFOP rail.
+- **JS details:**
+  - `collapseRailBtn` promoted to module-level variable (declared alongside `activeSet` and `drawerOpen`).
+  - `buildDOM()` creates the button but does not append it to the rail.
+  - `renderDrawer()` inserts it into `#cfopDrawerHead` between the case count and the close button after every `replaceChildren()` call, so it survives re-renders.
+  - `openDrawer()` unhides the button and calls `syncCollapseRailBtn()`.
+  - `closeDrawer()` hides the button.
+  - `syncCollapseRailBtn()` syncs `aria-label`, `title`, and `.is-all-expanded` class on the button. `syncCollapseAllButton()` delegates to it so all existing call sites continue to work.
+  - The separate `.cfop-collapse-all-btn` text button was removed from `renderDrawer()`.
+- **CSS details:**
+  - `style2.css`: Added `.cfop-collapse-rail-btn` base styles (36×36px icon button). `.ic` rotates 180° when sections are not all expanded.
+  - `mobile.css`: Added override for `.cfop-collapse-rail-btn` inside the 860px block (36×36px, no `margin-left: auto` since it is in the head, not the rail).
+- **Verification:** File edits confirmed; browser retest recommended.
+
+### X-ray look-ahead visibility update
+
+- **Date:** Not recorded.
+- **Files discussed:** `js/cube.js`, `js/main.js`, `js/ui.js`.
+- **Problem:** Making every cube face translucent allowed far-side faces to render, but overlapping transparent colors were difficult to distinguish.
+- **Proposed approach:** Use per-face materials; ghost camera-facing stickers, keep far-side stickers opaque, and lightly reveal internal faces. Update face classification as the camera moves.
+- **Integration requirement:** Call `RubiksCube.updateXrayCamera(camera)` in the main render loop before rendering.
+- **Code caution:** The last pasted `cube.js` mixes an array-based `cubeMaterials` declaration with Map-based methods. A complete replacement was supplied; application is unconfirmed.
+- **Verification:** No browser or runtime test results available.
+
+### Move Queue playback-speed slider
+
+- **Date:** Not recorded.
+- **Files discussed:** `index.html`, `js/ui.js`, `css/style3.css`.
+- **Proposed change:** Add a horizontal 0.2x–4x speed slider, a live speed label, and a reset button that returns to 1x. Keep the existing preset buttons synchronized with the slider.
+- **Markup:** Proposed IDs are `#speedSlider`, `#speedValue`, and `#speedReset`; the slider belongs after `.transport` and before `#algForm`.
+- **Styling:** Proposed horizontal CSS uses the app theme tokens, including `--accent`, `--s3`, and `--line`, and is intended for `css/style3.css`.
+- **Verification:** Markup, handlers, and styling have not been confirmed in the working tree or browser.
+
 ## 6. Verification Status
 
 - **Filesystem inspection:** Not performed.
@@ -228,3 +295,5 @@ The required elements should be present, and each of the final three counts shou
 - **JavaScript console verification:** Not performed after the final HTML proposal.
 - **Regression tests:** No results available.
 - **Claims of completion:** Do not treat proposed changes as applied until the current files are checked and the app is retested.
+- **Session edits (2026-10-16 / 2026-10-17):** `css/mobile.css`, `css/style2.css`, and `cfop/cfop-drawer.js` were edited and delivered. Browser visual and console verification has not been performed.
+- **X-ray and speed-slider work:** Code and styling proposals were supplied; their application and browser behavior are unconfirmed.

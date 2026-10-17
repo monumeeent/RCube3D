@@ -1,13 +1,11 @@
 Next Idea for RCube3D 
 > Double click on cube to start inspect timer
+> The Cube Also Gets Solved . slowly 0.5x
 
 > if i hold then realease it starts the timer. 
-> The Cube Also Gets Solved . slowly 0.5x
 
 > Make the Cube Learn to Solve itself using CFOP 
 
 Fix Needed :
 when ISO is toggled to off 
 do not go to any specific view . stay where the camera is . no change in camera position . 
-
-
