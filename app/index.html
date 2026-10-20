@@ -145,9 +145,9 @@
       </div>
     </section>
 
-    <aside class="panel" id="panel" aria-label="Cube controls">
+    <aside class="panel" id="panel" role="complementary" aria-label="Cube controls">
       <section class="module timer" id="timer" data-state="idle" aria-labelledby="h-timer">
-        <header class="module-head">
+        <header class="module-head" aria-describedby="timerHint">
           <h2 id="h-timer">Timer</h2>
           <span class="state-pill" id="timerState">Ready</span>
         </header>
@@ -186,7 +186,7 @@
           </div>
         </header>
 
-        <div class="track" id="seqTrack" role="list" tabindex="0" aria-label="Algorithm steps"></div>
+        <div class="track" id="seqTrack" role="list" tabindex="0" aria-label="Algorithm steps" aria-live="polite" role="log"></div>
 
         <input class="scrub" id="scrub" type="range" min="0" max="0" value="0" step="1" aria-label="Scrub through sequence" disabled>
 
@@ -207,10 +207,10 @@
             <svg class="ic"><use href="#i-to-end"></use></svg>
           </button>
           <div class="seg speed" id="speed" role="group" aria-label="Playback speed">
-            <button type="button" data-speed="0.5">0.5x</button>
-            <button type="button" data-speed="1" class="on">1x</button>
-            <button type="button" data-speed="2">2x</button>
-            <button type="button" data-speed="4">4x</button>
+            <button type="button" data-speed="0.5" aria-pressed="false">0.5x</button>
+            <button type="button" data-speed="1" class="on" aria-pressed="true">1x</button>
+            <button type="button" data-speed="2" aria-pressed="false">2x</button>
+            <button type="button" data-speed="4" aria-pressed="false">4x</button>
           </div>
         </div>
 
@@ -240,8 +240,8 @@
         <p class="alg-peek" id="algPeek" aria-live="polite">Hover a chip to preview its moves.</p>
       </section>
 
-      <section class="module" id="pad" aria-labelledby="h-pad">
-        <header class="module-head">
+      <section class="module" id="pad" role="region" aria-label="Move pad controls" aria-labelledby="h-pad">
+        <header class="module-head" aria-describedby="padHint">
           <h2 id="h-pad">Move pad</h2>
 
           <div class="pad-toolbar">
