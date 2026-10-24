@@ -6,6 +6,7 @@
    ========================================================================== */
 
 :root {
+  color-scheme: dark;
   --mbb-h: calc(56px + env(safe-area-inset-bottom, 0px));
   --z-sheet: 50;
   --z-nav: 60;

@@ -17,21 +17,38 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  color-scheme: dark;
-
-  --bg: #0f1115;
-  --stage-a: #1a1e27;
-  --stage-b: #0c0e12;
-  --s1: #15181f;
-  --s2: #1b1f28;
-  --s3: #232834;
-  --s4: #2c3240;
-  --line: #2a303c;
-  --line-strong: #3a4252;
-  --ink: #eceae4;
-  --ink-2: #b4b9c4;
-  --dim: #8f96a4;
+  /* OLED dark mode palette from design-system/rcube3d/MASTER.md */
+  --color-primary: #1E293B;
+  --color-on-primary: #FFFFFF;
+  --color-secondary: #334155;
+  --color-on-secondary: #FFFFFF;
+  --color-accent: #22C55E;
+  --color-on-accent: #0F172A;
+  --color-background: #0F172A;
+  --color-foreground: #F8FAFC;
+  --color-card: #1B2336;
+  --color-card-foreground: #F8FAFC;
+  --color-muted: #272F42;
+  --color-muted-foreground: #94A3B8;
+  --color-border: #475569;
+  --color-destructive: #EF4444;
+  --color-on-destructive: #000000;
+  --color-ring: #FFFFFF;
+  /* Compatibility aliases */
+  --bg: var(--color-background);
+  --stage-a: var(--color-card);
+  --stage-b: var(--color-background);
+  --s1: var(--color-muted);
+  --s2: var(--color-muted-foreground);
+  --s3: var(--color-card);
+  --s4: var(--color-card-foreground);
+  --line: var(--color-border);
+  --line-strong: var(--color-muted-foreground);
+  --ink: var(--color-foreground);
+  --ink-2: var(--color-foreground);
+  --dim: var(--color-muted-foreground);
   --glass: rgba(21, 24, 31, 0.72);
+  color-scheme: dark;
 
   --face-u: #ffd500;
   --face-r: #d12a2a;
@@ -327,7 +344,25 @@ kbd { font-family: var(--font-mono); }
   border: 1px solid var(--line-strong); background: var(--s3); color: var(--ink-2);
 }
 
-/* ---------- Buttons ---------- */
+/* Ensure all interactive elements have pointer cursor */
+.btn,
+.icon-btn,
+.cam-btn,
+.mbb-btn,
+.q-btn {
+  cursor: pointer;
+}
+
+/* ARIA-pressed support for toggle buttons */
+.btn[aria-pressed="true"],
+.icon-btn[aria-pressed="true"],
+.cam-btn[aria-pressed="true"],
+.mbb-btn[aria-pressed="true"],
+.q-btn[aria-pressed="true"] {
+  background: var(--color-muted);
+  color: var(--color-foreground);
+}
+
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
   height: 40px; padding: 0 16px;
